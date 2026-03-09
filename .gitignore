@@ -1,0 +1,18 @@
+# Python virtual environment
+venv/
+
+# Python cache files
+__pycache__/
+*.pyc
+
+# Environment variables (API key)
+.env
+
+# Flask instance folder (if you ever use it)
+instance/
+
+# VS Code settings (if you use VS Code)
+.vscode/
+
+# macOS system files (if on Mac)
+.DS_Store
