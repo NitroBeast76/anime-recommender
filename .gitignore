@@ -16,3 +16,4 @@ instance/
 
 # macOS system files (if on Mac)
 .DS_Storeapi_key.txt
+api_key.txt
