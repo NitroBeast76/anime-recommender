@@ -15,4 +15,4 @@ instance/
 .vscode/
 
 # macOS system files (if on Mac)
-.DS_Store
+.DS_Storeapi_key.txt
