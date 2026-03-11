@@ -81,15 +81,16 @@ User query: {user_input}
             max_tokens=50,
         )
         result = chat_completion.choices[0].message.content.strip()
+        print(f"Query: '{user_input}'")
+        print(f"Raw result: '{result}'")  # <-- add this
         if result == "NOT_FOUND":
             return None
         if result in title_list:
             return result
         else:
-            print(f"Warning: LLM returned '{result}' which is not in the title list.")
+            print(f"Warning: '{result}' not in list")
             return None
     except Exception as e:
-        # You can check for specific error types if needed
         print(f"Groq API error: {type(e).__name__}: {e}")
         return None
 
