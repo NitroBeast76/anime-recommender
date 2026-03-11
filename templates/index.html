@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Anime Recommender</title>
+    <style>
+      body {
+        font-family: sans-serif;
+        max-width: 600px;
+        margin: 40px auto;
+        text-align: center;
+      }
+      input[type="text"] {
+        width: 70%;
+        padding: 10px;
+      }
+      button {
+        padding: 10px 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Anime Recommender</h1>
+    <p>Enter an anime title (even misspelled!)</p>
+    <form action="/recommend" method="POST">
+      <input type="text" name="query" placeholder="e.g., One Peace" required />
+      <button type="submit">Go</button>
+    </form>
+  </body>
+</html>

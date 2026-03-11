@@ -1,5 +1,5 @@
 # Import the Flask library to create a web application (a simple website that can respond to requests).
-from flask import Flask
+from flask import Flask, render_template, request  # add render_template and request
 
 # Import pandas, a library for working with data (like reading CSV files and handling tables).
 import pandas as pd
@@ -59,18 +59,7 @@ anime_data = load_anime_data()
 # Title matching function using Groq
 # ------------------------------------------------------------
 def match_title_with_groq(user_input, title_list):
-    """
-    Uses Groq's large language model to find the closest matching title from a given list.
-    The user input can be misspelled or incomplete. The function returns the exact matched title
-    from the list, or None if no good match is found.
-    """
-    # Convert the list of titles into a bulleted string, one title per line starting with "- ".
-    # This will be inserted into the prompt to help the AI understand the available options.
     titles_formatted = "\n- ".join(title_list)
-
-    # Build the prompt that will be sent to the AI.
-    # The prompt explains the task, provides the list of valid titles, and gives the user query.
-    # We instruct the AI to return only the exact title or "NOT_FOUND".
     prompt = f"""You are a title‑matching assistant. Given a user query (which may be misspelled or incomplete), find the closest matching title from the following list. Return ONLY the exact title as it appears in the list. If no reasonable match exists, return exactly "NOT_FOUND".
 
 List of valid titles:
@@ -79,39 +68,29 @@ List of valid titles:
 User query: {user_input}
 """
     try:
-        # Call the Groq API to generate a completion based on our prompt.
         chat_completion = client.chat.completions.create(
             messages=[
-                # System message sets the behavior of the assistant.
                 {
                     "role": "system",
                     "content": "You are a helpful assistant that returns only the matched title or NOT_FOUND.",
                 },
-                # User message contains our prompt with the titles and the user query.
                 {"role": "user", "content": prompt},
             ],
-            model=MODEL_NAME,  # Use the model we selected earlier.
-            temperature=0.0,  # Set temperature to 0 for deterministic, repeatable output (no creativity).
-            max_tokens=50,  # Limit the response to 50 tokens, enough for a title.
+            model=MODEL_NAME,
+            temperature=0.0,
+            max_tokens=50,
         )
-
-        # Extract the content of the assistant's reply and strip any extra whitespace.
         result = chat_completion.choices[0].message.content.strip()
-
-        # If the AI returned "NOT_FOUND", that means no good match was found.
         if result == "NOT_FOUND":
             return None
-
-        # Optional but good practice: verify that the returned title actually exists in our list.
-        # This guards against the AI occasionally hallucinating a title not in the list.
         if result in title_list:
             return result
         else:
-            # If the AI returned something not in the list, treat it as no match.
+            print(f"Warning: LLM returned '{result}' which is not in the title list.")
             return None
     except Exception as e:
-        # If any error occurs (network issue, API error, etc.), print it and return None.
-        print(f"Groq API error: {e}")
+        # You can check for specific error types if needed
+        print(f"Groq API error: {type(e).__name__}: {e}")
         return None
 
 
@@ -121,8 +100,7 @@ User query: {user_input}
 # Define the route for the root URL "/". When someone visits the homepage, this function runs.
 @app.route("/")
 def home():
-    # Return a simple plain text greeting.
-    return "Hello, World!"
+    return render_template("index.html")
 
 
 # This is a test route – you can remove it later once you build the real recommendation endpoint.
@@ -140,9 +118,29 @@ def test_match():
 
     # Return a response showing what was matched.
     if matched:
-        return f"Matched: {matched}"
+        return f"Did you mean: {matched}?"
     else:
         return "No match found"
+
+
+@app.route("/recommend", methods=["POST"])
+def recommend():
+    # Get the user's input from the form
+    user_input = request.form.get("query", "").strip()
+
+    if not user_input:
+        return "Please enter a title."
+
+    # Extract all valid titles from the dataset
+    titles = [item["title"] for item in anime_data]
+
+    # Call the matching function
+    matched_title = match_title_with_groq(user_input, titles)
+
+    if matched_title is None:
+        return f"Sorry, could not find a match for '{user_input}'."
+    else:
+        return f"Did you mean: {matched_title}?"
 
 
 # This block ensures that the Flask development server runs only if this script is executed directly,
