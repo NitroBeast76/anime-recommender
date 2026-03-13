@@ -121,7 +121,7 @@ def test_match():
     if matched:
         return f"Did you mean: {matched}?"
     else:
-        return "No match found"
+        return "No match found."
 
 
 @app.route("/recommend", methods=["POST"])
@@ -140,8 +140,30 @@ def recommend():
 
     if matched_title is None:
         return f"Sorry, could not find a match for '{user_input}'."
-    else:
-        return f"Did you mean: {matched_title}?"
+
+    # Find the cluster ID of the matched title
+    cluster_id = None
+    for item in anime_data:
+        if item["title"] == matched_title:
+            cluster_id = item["cluster_id"]
+            break
+
+    if cluster_id is None:
+        # This should never happen, but just in case
+        return f"Matched '{matched_title}' but couldn't find its cluster ID."
+
+    # Gather all titles with the same cluster ID (excluding the matched title)
+    recommendations = [
+        item["title"] for item in anime_data
+        if item["cluster_id"] == cluster_id and item["title"] != matched_title
+    ]
+
+    # If no other titles in the cluster, let the user know
+    if not recommendations:
+        return f"Matched: '{matched_title}'. No other recommendations in its cluster."
+
+    # For now, return a simple text list
+    return f"Matched: '{matched_title}'. Recommendations: {', '.join(recommendations)}"
 
 
 # This block ensures that the Flask development server runs only if this script is executed directly,
