@@ -126,44 +126,31 @@ def test_match():
 
 @app.route("/recommend", methods=["POST"])
 def recommend():
-    # Get the user's input from the form
     user_input = request.form.get("query", "").strip()
-
     if not user_input:
         return "Please enter a title."
 
-    # Extract all valid titles from the dataset
     titles = [item["title"] for item in anime_data]
-
-    # Call the matching function
     matched_title = match_title_with_groq(user_input, titles)
 
     if matched_title is None:
-        return f"Sorry, could not find a match for '{user_input}'."
+        # Render a "not found" page (could use the same template with empty recommendations)
+        return render_template("results.html", query=user_input, matched="Not found", recommendations=[])
 
-    # Find the cluster ID of the matched title
     cluster_id = None
     for item in anime_data:
         if item["title"] == matched_title:
             cluster_id = item["cluster_id"]
             break
 
-    if cluster_id is None:
-        # This should never happen, but just in case
-        return f"Matched '{matched_title}' but couldn't find its cluster ID."
+    recommendations = []
+    if cluster_id is not None:
+        recommendations = [
+            item["title"] for item in anime_data
+            if item["cluster_id"] == cluster_id and item["title"] != matched_title
+        ]
 
-    # Gather all titles with the same cluster ID (excluding the matched title)
-    recommendations = [
-        item["title"] for item in anime_data
-        if item["cluster_id"] == cluster_id and item["title"] != matched_title
-    ]
-
-    # If no other titles in the cluster, let the user know
-    if not recommendations:
-        return f"Matched: '{matched_title}'. No other recommendations in its cluster."
-
-    # For now, return a simple text list
-    return f"Matched: '{matched_title}'. Recommendations: {', '.join(recommendations)}"
+    return render_template("results.html", query=user_input, matched=matched_title, recommendations=recommendations)
 
 
 # This block ensures that the Flask development server runs only if this script is executed directly,
