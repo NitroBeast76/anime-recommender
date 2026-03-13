@@ -169,6 +169,4 @@ def recommend():
 # This block ensures that the Flask development server runs only if this script is executed directly,
 # not if it is imported as a module by another script.
 if __name__ == "__main__":
-    # Start the Flask development server with debug mode enabled.
-    # Debug mode automatically restarts the server on code changes and shows detailed error pages.
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=True)

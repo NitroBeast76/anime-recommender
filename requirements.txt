@@ -50,3 +50,8 @@ tzdata==2025.3
 uritemplate==4.2.0
 urllib3==2.6.3
 Werkzeug==3.1.6
+flask
+google-generativeai
+groq
+pandas
+python-dotenv
