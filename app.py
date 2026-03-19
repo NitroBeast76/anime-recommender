@@ -45,6 +45,7 @@ MODEL_NAME = "llama-3.1-8b-instant"  # Updated from an older model name
 # The name __name__ helps Flask locate resources like templates and static files.
 app = Flask(__name__)
 
+
 # ------------------------------------------------------------
 # Load the anime dataset from a CSV file
 # ------------------------------------------------------------
@@ -69,9 +70,11 @@ def load_anime_data(filename="anime_data.csv"):
     data = df.to_dict(orient="records")
     return data
 
+
 # Load the anime data once when the script starts, so it's ready for use later.
 # The data is stored in a global variable `anime_data` so all functions can access it.
 anime_data = load_anime_data()
+
 
 # ------------------------------------------------------------
 # Title matching function using Groq AI
@@ -112,9 +115,9 @@ User query: {user_input}
                 },
                 {"role": "user", "content": prompt},
             ],
-            model=MODEL_NAME,      # Use the model we chose earlier
-            temperature=0.0,        # Set temperature to 0 for deterministic (repeatable) output
-            max_tokens=50,          # Limit the response to 50 tokens (enough for a title)
+            model=MODEL_NAME,  # Use the model we chose earlier
+            temperature=0.0,  # Set temperature to 0 for deterministic (repeatable) output
+            max_tokens=50,  # Limit the response to 50 tokens (enough for a title)
         )
 
         # Extract the content of the AI's response and remove any extra whitespace.
@@ -142,6 +145,7 @@ User query: {user_input}
         print(f"Groq API error: {type(e).__name__}: {e}")
         return None
 
+
 # ------------------------------------------------------------
 # Define the web routes (URLs) that our application will respond to
 # ------------------------------------------------------------
@@ -153,6 +157,7 @@ def home():
     Renders and returns the main HTML page (index.html) where users can enter an anime title.
     """
     return render_template("index.html")
+
 
 # A test route to experiment with the title matching function.
 # You can visit "/test-match" in your browser to see it in action.
@@ -176,6 +181,7 @@ def test_match():
         return f"Did you mean: {matched}?"
     else:
         return "No match found."
+
 
 # Route for receiving the user's query and returning recommendations.
 # This route only responds to POST requests (when the user submits the form).
@@ -201,7 +207,9 @@ def recommend():
 
     # If no match was found, render the results page with a "Not found" message and no recommendations.
     if matched_title is None:
-        return render_template("results.html", query=user_input, matched="Not found", recommendations=[])
+        return render_template(
+            "results.html", query=user_input, matched="Not found", recommendations=[]
+        )
 
     # Find the cluster ID of the matched title by searching through our data.
     cluster_id = None
@@ -215,12 +223,19 @@ def recommend():
     recommendations = []
     if cluster_id is not None:
         recommendations = [
-            item["title"] for item in anime_data
+            item["title"]
+            for item in anime_data
             if item["cluster_id"] == cluster_id and item["title"] != matched_title
         ]
 
     # Render the results page, passing the original query, the matched title, and the recommendations.
-    return render_template("results.html", query=user_input, matched=matched_title, recommendations=recommendations)
+    return render_template(
+        "results.html",
+        query=user_input,
+        matched=matched_title,
+        recommendations=recommendations,
+    )
+
 
 # ------------------------------------------------------------
 # Start the Flask development server

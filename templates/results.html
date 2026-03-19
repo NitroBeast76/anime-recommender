@@ -1,70 +1,22 @@
-<!-- 
-  ------------------------------------------------------------
-  DOCTYPE declaration: tells the browser this is an HTML5 document.
-  ------------------------------------------------------------
--->
 <!DOCTYPE html>
-
-<!-- 
-  ------------------------------------------------------------
-  html element: the root of the HTML page. lang="en" specifies the language.
-  ------------------------------------------------------------
--->
 <html lang="en">
 
-<!-- 
-  ------------------------------------------------------------
-  head section: contains metadata and links to styles/scripts.
-  ------------------------------------------------------------
--->
-
 <head>
-    <!-- 
-      meta charset: sets the character encoding to UTF-8,
-      which supports most characters and symbols.
-    -->
     <meta charset="UTF-8">
-
-    <!-- 
-      viewport meta: makes the page responsive on mobile devices by
-      setting the width to the device's screen width.
-    -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <!-- 
-      title: what appears in the browser tab.
-    -->
     <title>Recommendations</title>
-
-    <!-- 
-      ------------------------------------------------------------
-      style section: CSS rules that define the look of the page.
-      ------------------------------------------------------------
-    -->
     <style>
-        /* 
-          body styles: sets a clean font, limits the width for readability,
-          and centers the content with automatic margins.
-        */
         body {
             font-family: sans-serif;
             max-width: 600px;
             margin: 40px auto;
         }
 
-        /* 
-          ul (unordered list): removes the default bullet points
-          and any extra padding.
-        */
         ul {
             list-style-type: none;
             padding: 0;
         }
 
-        /* 
-          li (list items): adds a light gray background, a little space,
-          and rounded corners to each recommendation.
-        */
         li {
             padding: 5px;
             background: #f0f0f0;
@@ -72,10 +24,6 @@
             border-radius: 5px;
         }
 
-        /* 
-          .matched class: makes the matched title bold and blue
-          to stand out from the rest of the text.
-        */
         .matched {
             font-weight: bold;
             color: #0066cc;
@@ -83,64 +31,22 @@
     </style>
 </head>
 
-<!-- 
-  ------------------------------------------------------------
-  body section: the visible part of the page.
-  ------------------------------------------------------------
--->
-
 <body>
-    <!-- 
-      Main heading for the page.
-    -->
     <h1>Recommendations</h1>
-
-    <!-- 
-      Display the user's original search query.
-      {{ query }} is a placeholder that will be replaced with the actual text
-      the user entered (passed from the Flask backend).
-    -->
     <p>You searched for: <strong>{{ query }}</strong></p>
-
-    <!-- 
-      Show the exact anime title that was matched after correction.
-      The <span> with class "matched" applies special styling.
-    -->
     <p>Matched: <span class="matched">{{ matched }}</span></p>
 
-    <!-- 
-      Subheading for the list of recommendations.
-    -->
     <h2>Other titles you might like:</h2>
-
-    <!-- 
-      Jinja2 templating: {% if recommendations %} checks whether the
-      recommendations list passed from Flask contains any items.
-    -->
     {% if recommendations %}
-    <!-- 
-          If there are recommendations, create an unordered list.
-        -->
     <ul>
-        <!-- 
-          {% for rec in recommendations %} loops through each item in the list.
-          For each one, we create an <li> element and insert the title using {{ rec }}.
-        -->
         {% for rec in recommendations %}
         <li>{{ rec }}</li>
         {% endfor %}
     </ul>
     {% else %}
-    <!-- 
-          If the recommendations list is empty, show a friendly message instead.
-        -->
     <p>No other recommendations in this cluster.</p>
     {% endif %}
 
-    <!-- 
-      A link back to the home page so the user can search again.
-      The href="/" points to the root URL of the site.
-    -->
     <p><a href="/">← Search again</a></p>
 </body>
 
