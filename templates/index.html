@@ -1,30 +1,133 @@
+<!-- 
+  ------------------------------------------------------------
+  DOCTYPE declaration: tells the browser this is an HTML5 document
+  ------------------------------------------------------------
+-->
 <!doctype html>
+
+<!-- 
+  ------------------------------------------------------------
+  html element: the root of the entire HTML page. 
+  The lang="en" attribute tells browsers and search engines that 
+  the content is in English.
+  ------------------------------------------------------------
+-->
 <html lang="en">
+  
+  <!-- 
+    ------------------------------------------------------------
+    head section: contains meta-information about the page 
+    (not displayed directly on the page, but important for browsers,
+    search engines, and responsiveness).
+    ------------------------------------------------------------
+  -->
   <head>
+    <!-- 
+      meta charset: specifies the character encoding for the document.
+      UTF-8 includes almost all characters from all languages, 
+      ensuring that special symbols and letters display correctly.
+    -->
     <meta charset="UTF-8" />
+
+    <!-- 
+      viewport meta tag: controls how the page is displayed on mobile devices.
+      width=device-width sets the page width to follow the device's screen width,
+      initial-scale=1.0 sets the initial zoom level when the page loads.
+      This makes the site mobile-friendly.
+    -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- 
+      title: appears in the browser tab and is used by search engines 
+      as the clickable headline for search results.
+    -->
     <title>Anime Recommender</title>
+
+    <!-- 
+      ------------------------------------------------------------
+      style section: contains CSS rules that define how the page looks.
+      ------------------------------------------------------------
+    -->
     <style>
+      /* 
+        body selector: styles applied to the entire page body.
+        font-family: sets the text to a sans-serif font (clean and modern).
+        max-width: limits the width of the content to 600px so it doesn't 
+                   stretch too wide on large screens.
+        margin: 40px auto; centers the body horizontally (auto left/right margins)
+                and adds 40px space above and below.
+        text-align: center; centers all text inside the body.
+      */
       body {
         font-family: sans-serif;
         max-width: 600px;
         margin: 40px auto;
         text-align: center;
       }
+
+      /* 
+        input[type="text"]: selects all text input boxes.
+        width: 70%; makes the input box take up 70% of its container's width.
+        padding: 10px; adds space inside the box around the text, making it larger.
+      */
       input[type="text"] {
         width: 70%;
         padding: 10px;
       }
+
+      /* 
+        button selector: styles the submit button.
+        padding: 10px 20px; adds space inside the button (10px top/bottom, 20px left/right).
+      */
       button {
         padding: 10px 20px;
       }
     </style>
   </head>
+
+  <!-- 
+    ------------------------------------------------------------
+    body section: contains all the visible content of the page.
+    ------------------------------------------------------------
+  -->
   <body>
+    <!-- 
+      h1: main heading of the page. Usually the largest and most important.
+    -->
     <h1>Anime Recommender</h1>
+
+    <!-- 
+      p: paragraph text. Provides a short instruction to the user.
+    -->
     <p>Enter an anime title (even misspelled!)</p>
+
+    <!-- 
+      form: creates an area where users can input data and submit it.
+      action="/recommend" means when the form is submitted, the data will be sent
+                           to the "/recommend" URL on our server.
+      method="POST" means the form data will be sent in a way that is not visible
+                     in the URL (secure and can handle longer data).
+    -->
     <form action="/recommend" method="POST">
+      
+      <!-- 
+        input: a text field where the user types.
+        type="text" makes it a simple, single-line text box.
+        name="query" is the name of this field. When the form is submitted, 
+                     the server will receive a parameter named "query" with the 
+                     value the user typed.
+        placeholder="e.g., One Peace" shows light gray example text inside the box
+                     that disappears when the user starts typing.
+        required attribute means the browser will prevent form submission 
+                            if this field is empty.
+      -->
       <input type="text" name="query" placeholder="e.g., One Peace" required />
+
+      <!-- 
+        button: a clickable button.
+        type="submit" tells the browser that clicking this button should submit the form.
+        The text inside ("Go") is what the user sees on the button.
+      -->
       <button type="submit">Go</button>
     </form>
   </body>
