@@ -21,6 +21,9 @@ from groq import Groq
 # This keeps sensitive information (like API keys) out of our source code.
 from dotenv import load_dotenv
 
+# Simple cache for matched titles to avoid repeated API calls
+match_cache = {}
+
 # ------------------------------------------------------------
 # Load environment variables and set up Groq client
 # ------------------------------------------------------------
@@ -50,23 +53,9 @@ app = Flask(__name__)
 # Load the anime dataset from a CSV file
 # ------------------------------------------------------------
 def load_anime_data(filename="anime_data.csv"):
-    """
-    Reads a CSV file containing anime information and returns it as a list of dictionaries.
-
-    Each dictionary represents one anime row, with column names as keys.
-    The 'cluster_id' column is converted to an integer for consistency (sometimes it might be read as a float).
-    """
-    # Use pandas to read the CSV file into a DataFrame (a table-like structure).
-    # We specify encoding='utf-8' to handle special characters properly.
     df = pd.read_csv(filename, encoding="utf-8")
-
-    # Convert the 'cluster_id' column to integer type. This ensures that cluster IDs
-    # are whole numbers, which is important for grouping later.
     df["cluster_id"] = df["cluster_id"].astype(int)
-
-    # Convert the DataFrame to a list of dictionaries. Each dictionary's keys are the column names,
-    # and the values are the corresponding data for that row.
-    # 'orient="records"' makes a list of dictionaries, one per row.
+    # No longer need to add image_url – it's already in the CSV
     data = df.to_dict(orient="records")
     return data
 
@@ -80,70 +69,50 @@ anime_data = load_anime_data()
 # Title matching function using Groq AI
 # ------------------------------------------------------------
 def match_title_with_groq(user_input, title_list):
-    """
-    Uses Groq's AI to find the closest matching anime title from a given list,
-    even if the user's input is misspelled or incomplete.
+            # Normalize input for cache key (lowercase, strip whitespace)
+            cache_key = user_input.strip().lower()
 
-    Parameters:
-        user_input (str): The text entered by the user.
-        title_list (list): A list of valid anime titles from our dataset.
+            # Check cache first
+            if cache_key in match_cache:
+                print(f"Cache hit for '{user_input}' -> {match_cache[cache_key]}")
+                return match_cache[cache_key]
 
-    Returns:
-        str or None: The matched title exactly as it appears in the list, or None if no good match is found.
-    """
-    # Format the list of titles into a string with each title on a new line preceded by a dash.
-    # This makes it easy for the AI to see all available options.
-    titles_formatted = "\n- ".join(title_list)
+            titles_formatted = "\n- ".join(title_list)
+            prompt = f"""You are a title‑matching assistant. Given a user query (which may be misspelled or incomplete), find the closest matching title from the following list. Return ONLY the exact title as it appears in the list. If no reasonable match exists, return exactly "NOT_FOUND".
 
-    # Construct a prompt that clearly instructs the AI what to do.
-    # We ask it to return only the exact title from the list, or "NOT_FOUND" if there's no reasonable match.
-    prompt = f"""You are a title‑matching assistant. Given a user query (which may be misspelled or incomplete), find the closest matching title from the following list. Return ONLY the exact title as it appears in the list. If no reasonable match exists, return exactly "NOT_FOUND".
+        List of valid titles:
+        - {titles_formatted}
 
-List of valid titles:
-- {titles_formatted}
+        User query: {user_input}
+        """
+            try:
+                chat_completion = client.chat.completions.create(
+                    messages=[
+                        {"role": "system", "content": "You are a helpful assistant that returns only the matched title or NOT_FOUND."},
+                        {"role": "user", "content": prompt}
+                    ],
+                    model=MODEL_NAME,
+                    temperature=0.0,
+                    max_tokens=50
+                )
+                result = chat_completion.choices[0].message.content.strip()
+                print(f"Query: '{user_input}'")
+                print(f"Raw result: '{result}'")
 
-User query: {user_input}
-"""
-    try:
-        # Send a request to Groq's chat completion API.
-        # We provide a system message to set the AI's behavior, and the user message with our prompt.
-        chat_completion = client.chat.completions.create(
-            messages=[
-                {
-                    "role": "system",
-                    "content": "You are a helpful assistant that returns only the matched title or NOT_FOUND.",
-                },
-                {"role": "user", "content": prompt},
-            ],
-            model=MODEL_NAME,  # Use the model we chose earlier
-            temperature=0.0,  # Set temperature to 0 for deterministic (repeatable) output
-            max_tokens=50,  # Limit the response to 50 tokens (enough for a title)
-        )
-
-        # Extract the content of the AI's response and remove any extra whitespace.
-        result = chat_completion.choices[0].message.content.strip()
-
-        # For debugging, print the query and the raw result to the console.
-        print(f"Query: '{user_input}'")
-        print(f"Raw result: '{result}'")
-
-        # If the AI returned "NOT_FOUND", it means no good match exists.
-        if result == "NOT_FOUND":
-            return None
-
-        # If the result is actually one of the titles in our list, return it.
-        if result in title_list:
-            return result
-        else:
-            # If the AI returned something that isn't in the list (shouldn't happen, but just in case),
-            # print a warning and return None.
-            print(f"Warning: '{result}' not in list")
-            return None
-    except Exception as e:
-        # If any error occurs during the API call (network issue, invalid key, etc.),
-        # print the error and return None so the application doesn't crash.
-        print(f"Groq API error: {type(e).__name__}: {e}")
-        return None
+                if result == "NOT_FOUND":
+                    match_cache[cache_key] = None
+                    return None
+                if result in title_list:
+                    match_cache[cache_key] = result
+                    return result
+                else:
+                    print(f"Warning: LLM returned '{result}' which is not in the title list.")
+                    match_cache[cache_key] = None
+                    return None
+            except Exception as e:
+                print(f"Groq API error: {type(e).__name__}: {e}")
+                # Don't cache errors – next time it will try again
+                return None
 
 
 # ------------------------------------------------------------
@@ -187,54 +156,41 @@ def test_match():
 # This route only responds to POST requests (when the user submits the form).
 @app.route("/recommend", methods=["POST"])
 def recommend():
-    """
-    Handles form submissions from the homepage. Extracts the user's input,
-    matches it to a known anime title using Groq, finds other anime in the same cluster,
-    and displays the results.
-    """
-    # Get the value of the form field named "query". If not present, default to empty string.
-    user_input = request.form.get("query", "").strip()
+        user_input = request.form.get("query", "").strip()
+        if not user_input:
+            return "Please enter a title."
 
-    # If the user didn't enter anything, show a simple error message.
-    if not user_input:
-        return "Please enter a title."
+        titles = [item["title"] for item in anime_data]
+        matched_title = match_title_with_groq(user_input, titles)
 
-    # Extract all titles from the dataset.
-    titles = [item["title"] for item in anime_data]
+        if matched_title is None:
+            return render_template("results.html", 
+                                   query=user_input, 
+                                   matched=None, 
+                                   recommendations=[])
 
-    # Use Groq to find the best matching title.
-    matched_title = match_title_with_groq(user_input, titles)
+        # Find the matched anime record
+        matched_record = None
+        for item in anime_data:
+            if item["title"] == matched_title:
+                matched_record = item
+                break
 
-    # If no match was found, render the results page with a "Not found" message and no recommendations.
-    if matched_title is None:
-        return render_template(
-            "results.html", query=user_input, matched="Not found", recommendations=[]
-        )
+        if matched_record is None:
+            return "Error: matched title not found in dataset."
 
-    # Find the cluster ID of the matched title by searching through our data.
-    cluster_id = None
-    for item in anime_data:
-        if item["title"] == matched_title:
-            cluster_id = item["cluster_id"]
-            break
+        cluster_id = matched_record["cluster_id"]
 
-    # Prepare a list of recommendations: all anime titles in the same cluster,
-    # excluding the matched title itself.
-    recommendations = []
-    if cluster_id is not None:
+        # Gather all records in the same cluster (excluding the matched one)
         recommendations = [
-            item["title"]
-            for item in anime_data
+            item for item in anime_data
             if item["cluster_id"] == cluster_id and item["title"] != matched_title
         ]
 
-    # Render the results page, passing the original query, the matched title, and the recommendations.
-    return render_template(
-        "results.html",
-        query=user_input,
-        matched=matched_title,
-        recommendations=recommendations,
-    )
+        return render_template("results.html", 
+                               query=user_input, 
+                               matched=matched_record, 
+                               recommendations=recommendations)
 
 
 # ------------------------------------------------------------
