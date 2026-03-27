@@ -5,6 +5,8 @@
 # that can handle requests from users (like visiting a page or submitting a form).
 from flask import Flask, render_template, request
 
+from urllib.parse import unquote  # add at top if not already
+
 # Pandas: a library for data manipulation and analysis. We'll use it to read the CSV file
 # containing anime information and work with it as a table (DataFrame).
 import pandas as pd
@@ -192,6 +194,24 @@ def recommend():
                                matched=matched_record, 
                                recommendations=recommendations)
 
+
+@app.route("/info")
+def anime_info():
+    title = request.args.get("title", "")
+    if not title:
+        return "No title provided.", 400
+
+    # Find the anime record by exact title
+    anime = None
+    for item in anime_data:
+        if item["title"] == title:
+            anime = item
+            break
+
+    if anime is None:
+        return "Anime not found.", 404
+
+    return render_template("info.html", anime=anime)
 
 # ------------------------------------------------------------
 # Start the Flask development server

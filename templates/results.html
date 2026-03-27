@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,18 +13,21 @@
             padding: 20px;
             background: #f5f5f5;
         }
+
         .search-bar {
             background: white;
             padding: 20px;
             border-radius: 10px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
             margin-bottom: 30px;
         }
+
         .search-bar form {
             display: flex;
             gap: 10px;
             justify-content: center;
         }
+
         .search-bar input[type="text"] {
             flex: 1;
             padding: 12px;
@@ -31,6 +35,7 @@
             border: 1px solid #ddd;
             border-radius: 5px;
         }
+
         .search-bar button {
             padding: 12px 24px;
             background: #0066cc;
@@ -40,115 +45,134 @@
             cursor: pointer;
             font-size: 16px;
         }
+
         .search-bar button:hover {
             background: #0052a3;
         }
+
         .matched-title {
             background: white;
             padding: 15px;
             border-radius: 10px;
             margin-bottom: 30px;
             text-align: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
+
         .matched-title h2 {
             margin: 0;
             color: #0066cc;
         }
+
         .matched-title p {
             margin: 5px 0 0;
             color: #666;
         }
+
         .recommendations {
             margin-top: 20px;
         }
+
         .recommendations h2 {
             text-align: center;
             margin-bottom: 20px;
         }
+
         .cards {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
             gap: 20px;
         }
+
         .card {
             background: white;
             border-radius: 10px;
             overflow: hidden;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
             transition: transform 0.2s;
             text-align: center;
         }
+
         .card:hover {
             transform: translateY(-5px);
         }
+
         .card img {
             width: 100%;
             height: 250px;
             object-fit: cover;
             display: block;
         }
+
         .card .title {
             padding: 12px;
             font-weight: bold;
             font-size: 14px;
             background: white;
         }
+
         .no-results {
             text-align: center;
             padding: 40px;
             background: white;
             border-radius: 10px;
         }
+
         .no-results p {
             font-size: 18px;
             color: #666;
         }
+
         .back-link {
             text-align: center;
             margin-top: 30px;
         }
+
         .back-link a {
             color: #0066cc;
             text-decoration: none;
         }
     </style>
 </head>
+
 <body>
     <div class="search-bar">
         <form action="/recommend" method="POST">
-            <input type="text" name="query" placeholder="Enter an anime title (e.g., One Peace)" value="{{ query }}" required>
+            <input type="text" name="query" placeholder="Enter an anime title (e.g., One Peace)" value="{{ query }}"
+                required>
             <button type="submit">Go</button>
         </form>
     </div>
 
     {% if matched %}
-        <div class="matched-title">
-            <h2>You searched for "{{ query }}" → Matched: {{ matched.title }}</h2>
-            <p>Cluster ID: {{ matched.cluster_id }}</p>
-        </div>
+    <div class="matched-title">
+        <h2>You searched for "{{ query }}" → Matched: {{ matched.title }}</h2>
+        <p>Cluster ID: {{ matched.cluster_id }}</p>
+    </div>
     {% else %}
-        <div class="matched-title">
-            <h2>Sorry, we couldn't find a match for "{{ query }}"</h2>
-            <p>Try a different spelling or title.</p>
-        </div>
+    <div class="matched-title">
+        <h2>Sorry, we couldn't find a match for "{{ query }}"</h2>
+        <p>Try a different spelling or title.</p>
+    </div>
     {% endif %}
 
     <div class="recommendations">
         <h2>Recommendations</h2>
         {% if recommendations %}
-            <div class="cards">
-                {% for rec in recommendations %}
-                    <div class="card">
-                        <img src="{{ rec.image_url }}" alt="{{ rec.title }}">
-                        <div class="title">{{ rec.title }}</div>
-                    </div>
-                {% endfor %}
-            </div>
+        <div class="cards">
+            {% for rec in recommendations %}
+            <a href="/info?title={{ rec.title | urlencode }}" style="text-decoration: none; color: inherit;">
+                <div class="card">
+                    <img src="{{ rec.image_url }}" alt="{{ rec.title }}">
+                    <div class="title">{{ rec.title }}</div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
         {% else %}
-            <div class="no-results">
-                <p>No recommendations found in this cluster.</p>
-            </div>
+        <div class="no-results">
+            <p>No recommendations found in this cluster.</p>
+        </div>
         {% endif %}
     </div>
 
@@ -156,4 +180,5 @@
         <a href="/">← Back to Home</a>
     </div>
 </body>
+
 </html>

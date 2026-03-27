@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ anime.title }} - Anime Info</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .info-card {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .info-header {
+            display: flex;
+            gap: 20px;
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+        }
+        .info-header img {
+            width: 200px;
+            height: 300px;
+            object-fit: cover;
+            border-radius: 5px;
+        }
+        .info-details {
+            flex: 1;
+        }
+        .info-details h1 {
+            margin-top: 0;
+        }
+        .info-section {
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+        }
+        .info-section h2 {
+            margin-top: 0;
+            font-size: 1.2em;
+        }
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            color: #0066cc;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="info-card">
+        <div class="info-header">
+            <img src="{{ anime.image_url }}" alt="{{ anime.title }}">
+            <div class="info-details">
+                <h1>{{ anime.title }}</h1>
+                <p><strong>Genres:</strong> {{ anime.genres }}</p>
+                <p><strong>Release Date:</strong> {{ anime.release_date }}</p>
+                <p><strong>Author:</strong> {{ anime.author }}</p>
+                <p><strong>Studio:</strong> {{ anime.studio }}</p>
+                <p><strong>Episodes:</strong> {{ anime.episodes }}</p>
+                <p><strong>Rating:</strong> {{ anime.rating }}</p>
+            </div>
+        </div>
+        <div class="info-section">
+            <h2>Synopsis</h2>
+            <p>{{ anime.synopsis }}</p>
+        </div>
+    </div>
+    <a href="javascript:history.back()" class="back-link">← Back</a>
+</body>
+</html>
