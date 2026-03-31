@@ -1,26 +1,15 @@
 # ------------------------------------------------------------
 # Import necessary libraries
 # ------------------------------------------------------------
-# Flask: a lightweight web framework for Python. It helps us create a web application
-# that can handle requests from users (like visiting a page or submitting a form).
 from flask import Flask, render_template, request
+from urllib.parse import unquote
 
-from urllib.parse import unquote  # add at top if not already
-
-# Pandas: a library for data manipulation and analysis. We'll use it to read the CSV file
-# containing anime information and work with it as a table (DataFrame).
 import pandas as pd
+import numpy as np
+from sklearn.metrics.pairwise import cosine_similarity
 
-# OS module: provides functions to interact with the operating system.
-# We'll use it to read environment variables (like our API key) securely.
 import os
-
-# Groq library: gives us a simple way to send requests to Groq's AI models (like Llama).
-# This allows us to use AI for tasks like matching user input to anime titles.
 from groq import Groq
-
-# dotenv: a library that loads environment variables from a .env file into the system.
-# This keeps sensitive information (like API keys) out of our source code.
 from dotenv import load_dotenv
 
 # Simple cache for matched titles to avoid repeated API calls
@@ -29,170 +18,237 @@ match_cache = {}
 # ------------------------------------------------------------
 # Load environment variables and set up Groq client
 # ------------------------------------------------------------
-# Load any variables defined in a .env file (if present) so they become available
-# as environment variables. This is commonly done to keep API keys secure.
 load_dotenv()
 
-# Create a Groq client object. This client will handle all communication with Groq's API.
-# We pass it our API key, which we retrieve from the environment variable "GROQ_API_KEY".
-# os.getenv("GROQ_API_KEY") looks for that variable and returns its value.
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
-
-# Specify which AI model we want to use. Groq offers several models; here we choose
-# "llama-3.1-8b-instant", a fast and free model suitable for many tasks.
-# You could change this to a larger model like "mixtral-8x7b-32768" for more complex tasks.
-MODEL_NAME = "llama-3.1-8b-instant"  # Updated from an older model name
+MODEL_NAME = "llama-3.1-8b-instant"
 
 # ------------------------------------------------------------
 # Initialize the Flask application
 # ------------------------------------------------------------
-# Create an instance of the Flask class. This object will be our web server.
-# The name __name__ helps Flask locate resources like templates and static files.
 app = Flask(__name__)
 
+# ------------------------------------------------------------
+# How many recommendations to show per page
+# ------------------------------------------------------------
+# Change this number to show more or fewer results per page.
+# For example, set to 20 to show 20 cards per page.
+RESULTS_PER_PAGE = 20
 
 # ------------------------------------------------------------
-# Load the anime dataset from a CSV file
+# Load the anime dataset and the feature matrix
 # ------------------------------------------------------------
 def load_anime_data(filename="anime_data.csv"):
+    """
+    Loads the main anime dataset — the human-readable one with titles,
+    synopsis, images etc. This is what gets displayed on the website.
+    """
     df = pd.read_csv(filename, encoding="utf-8")
     df["cluster_id"] = df["cluster_id"].astype(int)
-    # No longer need to add image_url – it's already in the CSV
     data = df.to_dict(orient="records")
     return data
 
 
-# Load the anime data once when the script starts, so it's ready for use later.
-# The data is stored in a global variable `anime_data` so all functions can access it.
+def load_feature_matrix(filename="anime_features_scaled.csv"):
+    """
+    Loads the feature matrix produced by Category 1.
+    This is the numerical version of the dataset — all 0s, 1s, and scaled numbers.
+    We use this to calculate how similar two anime are to each other.
+
+    IMPORTANT: The rows in this file must be in the exact same order
+    as the rows in anime_data.csv. If they ever get out of sync,
+    the similarity scores will be wrong.
+    """
+    df = pd.read_csv(filename, encoding="utf-8")
+
+    # Drop the cluster_id column if it's in here — we only want the features
+    if "cluster_id" in df.columns:
+        df = df.drop(columns=["cluster_id"])
+
+    return df.values  # Return as a numpy array for fast calculations
+
+
+# Load everything once when the website starts
 anime_data = load_anime_data()
+feature_matrix = load_feature_matrix()
+
+print(f"Loaded {len(anime_data)} anime titles.")
+print(f"Feature matrix shape: {feature_matrix.shape}")
 
 
 # ------------------------------------------------------------
 # Title matching function using Groq AI
 # ------------------------------------------------------------
 def match_title_with_groq(user_input, title_list):
-            # Normalize input for cache key (lowercase, strip whitespace)
-            cache_key = user_input.strip().lower()
+    """
+    Takes whatever the user typed (even misspelled) and finds the closest
+    real title from our dataset using an AI model.
+    Results are cached so we don't call the API twice for the same query.
+    """
+    cache_key = user_input.strip().lower()
 
-            # Check cache first
-            if cache_key in match_cache:
-                print(f"Cache hit for '{user_input}' -> {match_cache[cache_key]}")
-                return match_cache[cache_key]
+    if cache_key in match_cache:
+        print(f"Cache hit for '{user_input}' -> {match_cache[cache_key]}")
+        return match_cache[cache_key]
 
-            titles_formatted = "\n- ".join(title_list)
-            prompt = f"""You are a title‑matching assistant. Given a user query (which may be misspelled or incomplete), find the closest matching title from the following list. Return ONLY the exact title as it appears in the list. If no reasonable match exists, return exactly "NOT_FOUND".
+    titles_formatted = "\n- ".join(title_list)
+    prompt = f"""You are a title-matching assistant. Given a user query (which may be misspelled or incomplete), find the closest matching title from the following list. Return ONLY the exact title as it appears in the list. If no reasonable match exists, return exactly "NOT_FOUND".
 
-        List of valid titles:
-        - {titles_formatted}
+List of valid titles:
+- {titles_formatted}
 
-        User query: {user_input}
-        """
-            try:
-                chat_completion = client.chat.completions.create(
-                    messages=[
-                        {"role": "system", "content": "You are a helpful assistant that returns only the matched title or NOT_FOUND."},
-                        {"role": "user", "content": prompt}
-                    ],
-                    model=MODEL_NAME,
-                    temperature=0.0,
-                    max_tokens=50
-                )
-                result = chat_completion.choices[0].message.content.strip()
-                print(f"Query: '{user_input}'")
-                print(f"Raw result: '{result}'")
+User query: {user_input}
+"""
+    try:
+        chat_completion = client.chat.completions.create(
+            messages=[
+                {"role": "system", "content": "You are a helpful assistant that returns only the matched title or NOT_FOUND."},
+                {"role": "user", "content": prompt}
+            ],
+            model=MODEL_NAME,
+            temperature=0.0,
+            max_tokens=50
+        )
+        result = chat_completion.choices[0].message.content.strip()
+        print(f"Query: '{user_input}' → Matched: '{result}'")
 
-                if result == "NOT_FOUND":
-                    match_cache[cache_key] = None
-                    return None
-                if result in title_list:
-                    match_cache[cache_key] = result
-                    return result
-                else:
-                    print(f"Warning: LLM returned '{result}' which is not in the title list.")
-                    match_cache[cache_key] = None
-                    return None
-            except Exception as e:
-                print(f"Groq API error: {type(e).__name__}: {e}")
-                # Don't cache errors – next time it will try again
-                return None
+        if result == "NOT_FOUND":
+            match_cache[cache_key] = None
+            return None
+
+        if result in title_list:
+            match_cache[cache_key] = result
+            return result
+        else:
+            print(f"Warning: AI returned '{result}' which is not in the title list.")
+            match_cache[cache_key] = None
+            return None
+
+    except Exception as e:
+        print(f"Groq API error: {type(e).__name__}: {e}")
+        return None
 
 
 # ------------------------------------------------------------
-# Define the web routes (URLs) that our application will respond to
+# Cosine similarity scoring
 # ------------------------------------------------------------
-# Route for the homepage ("/")
+def get_similarity_score(index_a, index_b):
+    """
+    Calculates how similar two anime are to each other using their
+    feature vectors from the feature matrix.
+
+    Returns a percentage between 0 and 100.
+    100 means identical. 0 means nothing in common.
+
+    How it works:
+    - Each anime is represented as a row of numbers in the feature matrix.
+    - Cosine similarity measures the angle between those two rows.
+    - A small angle = very similar. A large angle = very different.
+    - We multiply by 100 to turn it into a percentage.
+    """
+    vec_a = feature_matrix[index_a].reshape(1, -1)
+    vec_b = feature_matrix[index_b].reshape(1, -1)
+    score = cosine_similarity(vec_a, vec_b)[0][0]
+
+    # Round to one decimal place for clean display (e.g. 87.3%)
+    return round(float(score) * 100, 1)
+
+
+# ------------------------------------------------------------
+# Routes
+# ------------------------------------------------------------
 @app.route("/")
 def home():
-    """
-    Handles requests to the root URL (e.g., http://localhost:5000/).
-    Renders and returns the main HTML page (index.html) where users can enter an anime title.
-    """
     return render_template("index.html")
 
 
-# A test route to experiment with the title matching function.
-# You can visit "/test-match" in your browser to see it in action.
 @app.route("/test-match")
 def test_match():
-    """
-    A simple test endpoint that tries to match a sample query ("One Peace") against the anime list.
-    Useful for checking if the Groq integration is working without building a full form.
-    """
-    # Sample query that might be misspelled (e.g., "One Peace" instead of "One Piece").
-    query = "One Peace"  # You can change this or pass it as a URL parameter later.
-
-    # Extract all anime titles from our loaded data into a list.
+    query = "One Peace"
     titles = [item["title"] for item in anime_data]
-
-    # Call our matching function to find the closest title.
     matched = match_title_with_groq(query, titles)
-
-    # Return a simple text response showing what was matched.
     if matched:
         return f"Did you mean: {matched}?"
     else:
         return "No match found."
 
 
-# Route for receiving the user's query and returning recommendations.
-# This route only responds to POST requests (when the user submits the form).
 @app.route("/recommend", methods=["POST"])
 def recommend():
-        user_input = request.form.get("query", "").strip()
-        if not user_input:
-            return "Please enter a title."
+    """
+    Main recommendation route.
 
-        titles = [item["title"] for item in anime_data]
-        matched_title = match_title_with_groq(user_input, titles)
+    Steps:
+    1. Get the title the user typed.
+    2. Use AI to find the closest real title in our dataset.
+    3. Find that title's cluster ID and its position in the feature matrix.
+    4. Find all other anime in the same cluster.
+    5. Calculate a cosine similarity percentage for each one vs the searched title.
+    6. Sort by similarity score, highest first.
+    7. Paginate the results so we don't show hundreds of cards at once.
+    8. Send everything to the results page.
+    """
+    user_input = request.form.get("query", "").strip()
+    page = request.form.get("page", 1, type=int)
 
-        if matched_title is None:
-            return render_template("results.html", 
-                                   query=user_input, 
-                                   matched=None, 
-                                   recommendations=[])
+    if not user_input:
+        return "Please enter a title."
 
-        # Find the matched anime record
-        matched_record = None
-        for item in anime_data:
-            if item["title"] == matched_title:
-                matched_record = item
-                break
+    titles = [item["title"] for item in anime_data]
+    matched_title = match_title_with_groq(user_input, titles)
 
-        if matched_record is None:
-            return "Error: matched title not found in dataset."
+    if matched_title is None:
+        return render_template("results.html",
+                               query=user_input,
+                               matched=None,
+                               recommendations=[],
+                               page=1,
+                               total_pages=1)
 
-        cluster_id = matched_record["cluster_id"]
+    # Find the matched anime and its index in the dataset
+    matched_record = None
+    matched_index = None
+    for i, item in enumerate(anime_data):
+        if item["title"] == matched_title:
+            matched_record = item
+            matched_index = i
+            break
 
-        # Gather all records in the same cluster (excluding the matched one)
-        recommendations = [
-            item for item in anime_data
-            if item["cluster_id"] == cluster_id and item["title"] != matched_title
-        ]
+    if matched_record is None:
+        return "Error: matched title not found in dataset."
 
-        return render_template("results.html", 
-                               query=user_input, 
-                               matched=matched_record, 
-                               recommendations=recommendations)
+    cluster_id = matched_record["cluster_id"]
+
+    # Find all other anime in the same cluster and score each one
+    scored_recommendations = []
+    for i, item in enumerate(anime_data):
+        if item["cluster_id"] == cluster_id and item["title"] != matched_title:
+            score = get_similarity_score(matched_index, i)
+            # Add the score to a copy of the item so the template can display it
+            item_with_score = dict(item)
+            item_with_score["similarity"] = score
+            scored_recommendations.append(item_with_score)
+
+    # Sort by similarity score, highest first
+    scored_recommendations.sort(key=lambda x: x["similarity"], reverse=True)
+
+    # Paginate — split the full list into pages of RESULTS_PER_PAGE
+    total = len(scored_recommendations)
+    total_pages = max(1, -(-total // RESULTS_PER_PAGE))  # Ceiling division
+    page = max(1, min(page, total_pages))                 # Clamp to valid range
+
+    start = (page - 1) * RESULTS_PER_PAGE
+    end = start + RESULTS_PER_PAGE
+    page_results = scored_recommendations[start:end]
+
+    print(f"Returning page {page} of {total_pages} ({len(page_results)} results)")
+
+    return render_template("results.html",
+                           query=user_input,
+                           matched=matched_record,
+                           recommendations=page_results,
+                           page=page,
+                           total_pages=total_pages)
 
 
 @app.route("/info")
@@ -201,7 +257,6 @@ def anime_info():
     if not title:
         return "No title provided.", 400
 
-    # Find the anime record by exact title
     anime = None
     for item in anime_data:
         if item["title"] == title:
@@ -213,14 +268,9 @@ def anime_info():
 
     return render_template("info.html", anime=anime)
 
+
 # ------------------------------------------------------------
 # Start the Flask development server
 # ------------------------------------------------------------
-# This block ensures that the server runs only when this script is executed directly,
-# not when it is imported as a module by another script.
 if __name__ == "__main__":
-    # Run the app on all available network interfaces (host="0.0.0.0") so it can be accessed
-    # from other devices on the same network, and on port 5000.
-    # The debug=True option enables automatic reloading when code changes and shows detailed errors.
-    # In production, debug should be set to False.
     app.run(host="0.0.0.0", port=5000, debug=True)

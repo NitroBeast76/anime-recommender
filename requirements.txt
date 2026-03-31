@@ -56,3 +56,4 @@ groq
 pandas
 python-dotenv
 gunicorn
+scikit-learn

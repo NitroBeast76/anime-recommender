@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,21 +12,18 @@
             padding: 20px;
             background: #f5f5f5;
         }
-
         .search-bar {
             background: white;
             padding: 20px;
             border-radius: 10px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
             margin-bottom: 30px;
         }
-
         .search-bar form {
             display: flex;
             gap: 10px;
             justify-content: center;
         }
-
         .search-bar input[type="text"] {
             flex: 1;
             padding: 12px;
@@ -35,7 +31,6 @@
             border: 1px solid #ddd;
             border-radius: 5px;
         }
-
         .search-bar button {
             padding: 12px 24px;
             background: #0066cc;
@@ -45,10 +40,7 @@
             cursor: pointer;
             font-size: 16px;
         }
-
-        .search-bar button:hover {
-            background: #0052a3;
-        }
+        .search-bar button:hover { background: #0052a3; }
 
         .matched-title {
             background: white;
@@ -56,27 +48,13 @@
             border-radius: 10px;
             margin-bottom: 30px;
             text-align: center;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
+        .matched-title h2 { margin: 0; color: #0066cc; }
+        .matched-title p { margin: 5px 0 0; color: #666; }
 
-        .matched-title h2 {
-            margin: 0;
-            color: #0066cc;
-        }
-
-        .matched-title p {
-            margin: 5px 0 0;
-            color: #666;
-        }
-
-        .recommendations {
-            margin-top: 20px;
-        }
-
-        .recommendations h2 {
-            text-align: center;
-            margin-bottom: 20px;
-        }
+        .recommendations { margin-top: 20px; }
+        .recommendations h2 { text-align: center; margin-bottom: 20px; }
 
         .cards {
             display: grid;
@@ -84,32 +62,48 @@
             gap: 20px;
         }
 
+        /* Each card is a clickable link to the info page */
+        .card-link {
+            text-decoration: none;
+            color: inherit;
+        }
         .card {
             background: white;
             border-radius: 10px;
             overflow: hidden;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
             transition: transform 0.2s;
             text-align: center;
         }
-
-        .card:hover {
-            transform: translateY(-5px);
-        }
-
+        .card:hover { transform: translateY(-5px); }
         .card img {
             width: 100%;
             height: 250px;
             object-fit: cover;
             display: block;
         }
-
         .card .title {
-            padding: 12px;
+            padding: 8px 12px 4px;
             font-weight: bold;
             font-size: 14px;
-            background: white;
         }
+
+        /* Similarity badge shown below the title on each card */
+        .similarity-badge {
+            padding: 4px 12px 12px;
+            font-size: 12px;
+            color: white;
+            background: #0066cc;
+            display: inline-block;
+            border-radius: 20px;
+            margin: 0 12px 10px;
+        }
+
+        /* Colour the badge based on how strong the match is */
+        /* 80% and above = green, 60-79% = orange, below 60% = grey */
+        .similarity-badge.high   { background: #2e7d32; }
+        .similarity-badge.medium { background: #e65100; }
+        .similarity-badge.low    { background: #757575; }
 
         .no-results {
             text-align: center;
@@ -117,33 +111,85 @@
             background: white;
             border-radius: 10px;
         }
+        .no-results p { font-size: 18px; color: #666; }
 
-        .no-results p {
-            font-size: 18px;
-            color: #666;
+        /* Pagination controls */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            margin-top: 40px;
+        }
+        .pagination button {
+            padding: 10px 20px;
+            background: #0066cc;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .pagination button:hover { background: #0052a3; }
+        .pagination button:disabled {
+            background: #ccc;
+            cursor: default;
+        }
+        .pagination .page-info {
+            font-size: 14px;
+            color: #444;
         }
 
         .back-link {
             text-align: center;
             margin-top: 30px;
         }
+        .back-link a { color: #0066cc; text-decoration: none; }
 
-        .back-link a {
-            color: #0066cc;
-            text-decoration: none;
+        /* Loading overlay — same as index.html */
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.85);
+            z-index: 999;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
         }
+        .loading-overlay.visible { display: flex; }
+        .spinner {
+            width: 48px;
+            height: 48px;
+            border: 5px solid #ddd;
+            border-top-color: #0066cc;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        .loading-text { font-size: 16px; color: #444; }
+        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
-
 <body>
+
+    <!-- Loading overlay — appears on search or page change -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner"></div>
+        <div class="loading-text">Finding recommendations...</div>
+    </div>
+
+    <!-- Search bar at the top so the user can search again without going back -->
     <div class="search-bar">
-        <form action="/recommend" method="POST">
-            <input type="text" name="query" placeholder="Enter an anime title (e.g., One Peace)" value="{{ query }}"
-                required>
+        <form action="/recommend" method="POST" id="searchForm">
+            <input type="text" name="query"
+                   placeholder="Enter an anime title (e.g., One Peace)"
+                   value="{{ query }}" required>
             <button type="submit">Go</button>
         </form>
     </div>
 
+    <!-- Show what title was matched, or an error message if nothing was found -->
     {% if matched %}
     <div class="matched-title">
         <h2>You searched for "{{ query }}" → Matched: {{ matched.title }}</h2>
@@ -158,17 +204,64 @@
 
     <div class="recommendations">
         <h2>Recommendations</h2>
+
         {% if recommendations %}
         <div class="cards">
             {% for rec in recommendations %}
-            <a href="/info?title={{ rec.title | urlencode }}" style="text-decoration: none; color: inherit;">
+            <a href="/info?title={{ rec.title | urlencode }}" class="card-link">
                 <div class="card">
                     <img src="{{ rec.image_url }}" alt="{{ rec.title }}">
                     <div class="title">{{ rec.title }}</div>
+
+                    <!--
+                        Similarity badge — shows how close this recommendation
+                        is to the searched title as a percentage.
+                        Colour changes based on how strong the match is.
+                    -->
+                    {% if rec.similarity >= 80 %}
+                        <div class="similarity-badge high">{{ rec.similarity }}% match</div>
+                    {% elif rec.similarity >= 60 %}
+                        <div class="similarity-badge medium">{{ rec.similarity }}% match</div>
+                    {% else %}
+                        <div class="similarity-badge low">{{ rec.similarity }}% match</div>
+                    {% endif %}
+
                 </div>
             </a>
             {% endfor %}
         </div>
+
+        <!-- Pagination controls -->
+        <!-- These submit the search form again with a different page number -->
+        <!-- The query and page are both sent as form fields -->
+        {% if total_pages > 1 %}
+        <div class="pagination">
+
+            <!-- Previous page button — disabled if we're already on page 1 -->
+            <form action="/recommend" method="POST" id="prevForm">
+                <input type="hidden" name="query" value="{{ query }}">
+                <input type="hidden" name="page" value="{{ page - 1 }}">
+                <button type="submit" {% if page <= 1 %}disabled{% endif %}
+                        onclick="showLoading()">
+                    ← Previous
+                </button>
+            </form>
+
+            <span class="page-info">Page {{ page }} of {{ total_pages }}</span>
+
+            <!-- Next page button — disabled if we're on the last page -->
+            <form action="/recommend" method="POST" id="nextForm">
+                <input type="hidden" name="query" value="{{ query }}">
+                <input type="hidden" name="page" value="{{ page + 1 }}">
+                <button type="submit" {% if page >= total_pages %}disabled{% endif %}
+                        onclick="showLoading()">
+                    Next →
+                </button>
+            </form>
+
+        </div>
+        {% endif %}
+
         {% else %}
         <div class="no-results">
             <p>No recommendations found in this cluster.</p>
@@ -179,6 +272,16 @@
     <div class="back-link">
         <a href="/">← Back to Home</a>
     </div>
-</body>
 
+    <script>
+        // Show the loading overlay whenever a form is submitted
+        function showLoading() {
+            document.getElementById('loadingOverlay').classList.add('visible');
+        }
+
+        // Attach to the main search form at the top
+        document.getElementById('searchForm').addEventListener('submit', showLoading);
+    </script>
+
+</body>
 </html>

@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ anime.title }} - Anime Info</title>
     <style>
         body {
@@ -28,13 +29,11 @@
             height: 300px;
             object-fit: cover;
             border-radius: 5px;
+            flex-shrink: 0;
         }
-        .info-details {
-            flex: 1;
-        }
-        .info-details h1 {
-            margin-top: 0;
-        }
+        .info-details { flex: 1; }
+        .info-details h1 { margin-top: 0; }
+        .info-details p { color: #444; line-height: 1.6; }
         .info-section {
             padding: 20px;
             border-bottom: 1px solid #eee;
@@ -42,16 +41,24 @@
         .info-section h2 {
             margin-top: 0;
             font-size: 1.2em;
+            color: #333;
+        }
+        .info-section p {
+            color: #555;
+            line-height: 1.7;
         }
         .back-link {
             display: inline-block;
             margin-top: 20px;
             color: #0066cc;
             text-decoration: none;
+            font-size: 15px;
         }
+        .back-link:hover { text-decoration: underline; }
     </style>
 </head>
 <body>
+
     <div class="info-card">
         <div class="info-header">
             <img src="{{ anime.image_url }}" alt="{{ anime.title }}">
@@ -70,6 +77,8 @@
             <p>{{ anime.synopsis }}</p>
         </div>
     </div>
-    <a href="javascript:history.back()" class="back-link">← Back</a>
+
+    <a href="javascript:history.back()" class="back-link">← Back to Results</a>
+
 </body>
 </html>
