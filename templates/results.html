@@ -1,287 +1,527 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Anime Recommendations</title>
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-            background: #f5f5f5;
-        }
-        .search-bar {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            margin-bottom: 30px;
-        }
-        .search-bar form {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-        }
-        .search-bar input[type="text"] {
-            flex: 1;
-            padding: 12px;
-            font-size: 16px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-        }
-        .search-bar button {
-            padding: 12px 24px;
-            background: #0066cc;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-        .search-bar button:hover { background: #0052a3; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Anideas — Results</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&family=Space+Mono:wght@400;700&display=swap');
 
-        .matched-title {
-            background: white;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 30px;
-            text-align: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-        .matched-title h2 { margin: 0; color: #0066cc; }
-        .matched-title p { margin: 5px 0 0; color: #666; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-        .recommendations { margin-top: 20px; }
-        .recommendations h2 { text-align: center; margin-bottom: 20px; }
+:root {
+  --ease: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --rad-sm: 8px; --rad-md: 14px; --rad-lg: 20px;
+  --sp1: 8px; --sp2: 16px; --sp3: 24px; --sp4: 32px; --sp5: 48px; --sp6: 64px;
+}
 
-        .cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-            gap: 20px;
-        }
+[data-theme="light"] {
+  --bg: #F3C677;
+  --bg2: #F0B84E;
+  --bg3: #e8a83a;
+  --primary: #F8403A;
+  --secondary: #FFB347;
+  --text: #2D2B26;
+  --text2: #7A6A4B;
+  --surface: rgba(255,255,255,0.6);
+  --surface2: rgba(255,255,255,0.4);
+  --surface3: rgba(255,255,255,0.85);
+  --border: rgba(45,43,38,0.12);
+  --glow: rgba(248,64,58,0.25);
+  --overlay: rgba(243,198,119,0.88);
+  --spinner-track: rgba(45,43,38,0.15);
+  --card-bg: rgba(255,255,255,0.65);
+  --badge-high: #1a7a3a;
+  --badge-mid: #c05000;
+  --badge-low: #6a6a6a;
+}
 
-        /* Each card is a clickable link to the info page */
-        .card-link {
-            text-decoration: none;
-            color: inherit;
-        }
-        .card {
-            background: white;
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            transition: transform 0.2s;
-            text-align: center;
-        }
-        .card:hover { transform: translateY(-5px); }
-        .card img {
-            width: 100%;
-            height: 250px;
-            object-fit: cover;
-            display: block;
-        }
-        .card .title {
-            padding: 8px 12px 4px;
-            font-weight: bold;
-            font-size: 14px;
-        }
+[data-theme="dark"] {
+  --bg: #1a1530;
+  --bg2: #2A2442;
+  --bg3: #342d56;
+  --primary: #A564EE;
+  --secondary: #7A4EE6;
+  --text: #F0EFF7;
+  --text2: #9A8FC2;
+  --surface: rgba(42,36,66,0.75);
+  --surface2: rgba(52,45,86,0.6);
+  --surface3: rgba(30,25,55,0.92);
+  --border: rgba(165,100,238,0.18);
+  --glow: rgba(165,100,238,0.3);
+  --overlay: rgba(26,21,48,0.9);
+  --spinner-track: rgba(240,239,247,0.1);
+  --card-bg: rgba(42,36,66,0.85);
+  --badge-high: #1e7a42;
+  --badge-mid: #b84800;
+  --badge-low: #555;
+}
 
-        /* Similarity badge shown below the title on each card */
-        .similarity-badge {
-            padding: 4px 12px 12px;
-            font-size: 12px;
-            color: white;
-            background: #0066cc;
-            display: inline-block;
-            border-radius: 20px;
-            margin: 0 12px 10px;
-        }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+  transition: background 0.4s var(--ease), color 0.4s var(--ease);
+}
 
-        /* Colour the badge based on how strong the match is */
-        /* 80% and above = green, 60-79% = orange, below 60% = grey */
-        .similarity-badge.high   { background: #2e7d32; }
-        .similarity-badge.medium { background: #e65100; }
-        .similarity-badge.low    { background: #757575; }
+/* BG orbs */
+.bg-canvas { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
+.bg-orb { position: absolute; border-radius: 50%; filter: blur(90px); animation: drift 20s ease-in-out infinite alternate; }
+.bg-orb:nth-child(1) { width: 500px; height: 500px; top: -150px; left: -100px; background: var(--primary); opacity: 0.2; }
+.bg-orb:nth-child(2) { width: 400px; height: 400px; bottom: -100px; right: 0; background: var(--secondary); opacity: 0.15; animation-delay: -8s; }
+[data-theme="light"] .bg-orb { opacity: 0.12 !important; }
+@keyframes drift { 0% { transform: translate(0,0); } 100% { transform: translate(30px,50px); } }
 
-        .no-results {
-            text-align: center;
-            padding: 40px;
-            background: white;
-            border-radius: 10px;
-        }
-        .no-results p { font-size: 18px; color: #666; }
+body::before {
+  content: ''; position: fixed; inset: 0; z-index: 1; pointer-events: none;
+  opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 200px 200px;
+}
 
-        /* Pagination controls */
-        .pagination {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 12px;
-            margin-top: 40px;
-        }
-        .pagination button {
-            padding: 10px 20px;
-            background: #0066cc;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-        .pagination button:hover { background: #0052a3; }
-        .pagination button:disabled {
-            background: #ccc;
-            cursor: default;
-        }
-        .pagination .page-info {
-            font-size: 14px;
-            color: #444;
-        }
+/* ─── Navbar ─── */
+.navbar {
+  position: sticky; top: 0; z-index: 100;
+  padding: 14px var(--sp4);
+  display: flex; align-items: center; justify-content: space-between; gap: var(--sp3);
+  background: var(--overlay);
+  backdrop-filter: blur(20px) saturate(1.6);
+  -webkit-backdrop-filter: blur(20px) saturate(1.6);
+  border-bottom: 1px solid var(--border);
+  transition: background 0.4s var(--ease);
+}
+.logo {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 26px; letter-spacing: 3px;
+  color: var(--primary); text-decoration: none;
+  display: flex; align-items: center; gap: 8px; flex-shrink: 0;
+}
+.logo-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--primary); animation: pulse 2.4s ease-in-out infinite; }
+@keyframes pulse { 0%,100% { transform:scale(1); opacity:1; } 50% { transform:scale(1.5); opacity:0.6; } }
 
-        .back-link {
-            text-align: center;
-            margin-top: 30px;
-        }
-        .back-link a { color: #0066cc; text-decoration: none; }
+.nav-search {
+  flex: 1; max-width: 480px;
+  display: flex; align-items: center;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 50px;
+  padding: 6px 6px 6px 18px;
+  gap: 10px;
+  backdrop-filter: blur(10px);
+  transition: border-color 0.25s, box-shadow 0.25s;
+}
+.nav-search:focus-within {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--glow);
+}
+.nav-search input {
+  flex: 1; background: transparent; border: none; outline: none;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px; color: var(--text);
+}
+.nav-search input::placeholder { color: var(--text2); }
+.nav-search button {
+  background: var(--primary); color: #fff; border: none;
+  border-radius: 50px; padding: 8px 18px;
+  font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s, filter 0.2s;
+}
+.nav-search button:hover { transform: scale(1.04); filter: brightness(1.1); }
 
-        /* Loading overlay — same as index.html */
-        .loading-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(255, 255, 255, 0.85);
-            z-index: 999;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 16px;
-        }
-        .loading-overlay.visible { display: flex; }
-        .spinner {
-            width: 48px;
-            height: 48px;
-            border: 5px solid #ddd;
-            border-top-color: #0066cc;
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-        }
-        .loading-text { font-size: 16px; color: #444; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-    </style>
+.nav-right { display: flex; align-items: center; gap: var(--sp2); flex-shrink: 0; }
+.theme-toggle {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 50px; width: 50px; height: 26px;
+  cursor: pointer; position: relative;
+  transition: background 0.3s var(--ease);
+}
+.theme-toggle::after {
+  content: ''; position: absolute; top: 3px; left: 3px;
+  width: 20px; height: 20px; border-radius: 50%;
+  background: var(--text2); transition: transform 0.3s var(--ease), background 0.3s;
+}
+[data-theme="dark"] .theme-toggle::after { transform: translateX(22px); background: var(--primary); }
+.theme-icon { position: absolute; font-size: 10px; top: 50%; transform: translateY(-50%); pointer-events: none; }
+.theme-icon.sun { left: 6px; } .theme-icon.moon { right: 4px; }
+
+/* ─── Page wrapper ─── */
+.page {
+  position: relative; z-index: 10;
+  max-width: 1340px;
+  margin: 0 auto;
+  padding: var(--sp4);
+  animation: pageIn 0.5s var(--ease) both;
+}
+@keyframes pageIn { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+
+/* ─── Match banner ─── */
+.match-banner {
+  display: flex; align-items: center; gap: var(--sp3); flex-wrap: wrap;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--rad-lg);
+  padding: var(--sp3) var(--sp4);
+  margin-bottom: var(--sp4);
+  backdrop-filter: blur(12px);
+}
+.match-banner .match-label {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px; letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 15%, transparent);
+  padding: 4px 12px; border-radius: 50px;
+  border: 1px solid color-mix(in srgb, var(--primary) 35%, transparent);
+}
+.match-banner .match-query { font-size: 13px; color: var(--text2); }
+.match-banner .match-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 22px; letter-spacing: 1px;
+  color: var(--text); margin-left: auto;
+}
+.match-banner .cluster-badge {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px; color: var(--text2);
+  background: var(--surface2);
+  padding: 4px 12px; border-radius: 50px;
+  border: 1px solid var(--border);
+}
+
+/* ─── Section heading ─── */
+.section-head {
+  display: flex; align-items: baseline; justify-content: space-between;
+  margin-bottom: var(--sp3);
+}
+.section-head h2 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 32px; letter-spacing: 2px;
+  color: var(--text);
+}
+.section-head .count {
+  font-family: 'Space Mono', monospace;
+  font-size: 12px; color: var(--text2); letter-spacing: 2px;
+}
+
+/* ─── Cards Grid ─── */
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: var(--sp3);
+}
+
+.card-link { text-decoration: none; color: inherit; display: block; }
+
+.card {
+  position: relative;
+  background: var(--card-bg);
+  border-radius: var(--rad-md);
+  overflow: hidden;
+  border: 1px solid var(--border);
+  backdrop-filter: blur(8px);
+  transition: transform 0.28s var(--ease), box-shadow 0.28s var(--ease), border-color 0.28s;
+  cursor: pointer;
+  animation: cardIn 0.5s var(--ease) both;
+}
+.card:hover {
+  transform: translateY(-6px) scale(1.025);
+  box-shadow: 0 20px 48px rgba(0,0,0,0.28), 0 0 0 1px var(--primary);
+  border-color: var(--primary);
+}
+
+@keyframes cardIn {
+  from { opacity:0; transform:translateY(18px); }
+  to { opacity:1; transform:translateY(0); }
+}
+
+.card:nth-child(1) { animation-delay: 0.05s; }
+.card:nth-child(2) { animation-delay: 0.1s; }
+.card:nth-child(3) { animation-delay: 0.15s; }
+.card:nth-child(4) { animation-delay: 0.2s; }
+.card:nth-child(5) { animation-delay: 0.25s; }
+.card:nth-child(6) { animation-delay: 0.3s; }
+.card:nth-child(7) { animation-delay: 0.35s; }
+.card:nth-child(8) { animation-delay: 0.4s; }
+.card:nth-child(9) { animation-delay: 0.45s; }
+.card:nth-child(10) { animation-delay: 0.5s; }
+
+.card-img-wrap {
+  position: relative;
+  width: 100%; aspect-ratio: 2/3;
+  overflow: hidden;
+}
+.card-img-wrap img {
+  width: 100%; height: 100%;
+  object-fit: cover; display: block;
+  transition: transform 0.4s var(--ease);
+}
+.card:hover .card-img-wrap img { transform: scale(1.06); }
+
+.card-gradient {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 65%;
+  background: linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.4) 60%, transparent 100%);
+  pointer-events: none;
+}
+
+.card-overlay-info {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  padding: 14px 12px 12px;
+}
+.card-title {
+  font-size: 13px; font-weight: 600;
+  color: #fff; line-height: 1.3;
+  margin-bottom: 6px;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.5);
+}
+
+.badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-family: 'Space Mono', monospace;
+  font-size: 10px; font-weight: 700;
+  letter-spacing: 0.5px;
+  padding: 3px 10px;
+  border-radius: 50px;
+  color: #fff;
+}
+.badge.high { background: var(--badge-high); }
+.badge.medium { background: var(--badge-mid); }
+.badge.low { background: var(--badge-low); }
+
+.card-hover-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--primary) 20%, transparent), transparent 60%);
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
+}
+.card:hover .card-hover-overlay { opacity: 1; }
+
+/* ─── No results ─── */
+.no-results {
+  text-align: center;
+  padding: var(--sp6) var(--sp4);
+  background: var(--surface);
+  border-radius: var(--rad-lg);
+  border: 1px solid var(--border);
+}
+.no-results .icon { font-size: 48px; margin-bottom: var(--sp2); }
+.no-results p { color: var(--text2); font-size: 16px; }
+
+/* ─── Pagination ─── */
+.pagination {
+  display: flex;
+  justify-content: center; align-items: center;
+  gap: var(--sp2); margin-top: var(--sp5);
+  flex-wrap: wrap;
+}
+.pag-btn {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 50px;
+  padding: 10px 24px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px; font-weight: 500;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  transition: background 0.2s, border-color 0.2s, color 0.2s, transform 0.2s, box-shadow 0.2s;
+}
+.pag-btn:hover:not(:disabled) {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px var(--glow);
+}
+.pag-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+.pag-btn:active:not(:disabled) { transform: scale(0.97); }
+.page-info {
+  font-family: 'Space Mono', monospace;
+  font-size: 12px; letter-spacing: 2px;
+  color: var(--text2);
+  padding: 10px 16px;
+  background: var(--surface2);
+  border-radius: 50px;
+  border: 1px solid var(--border);
+}
+
+/* ─── Back link ─── */
+.back-link {
+  text-align: center; margin-top: var(--sp4);
+}
+.back-link a {
+  font-family: 'Space Mono', monospace;
+  font-size: 12px; letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--text2);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.back-link a:hover { color: var(--primary); }
+
+/* ─── Loading ─── */
+.loading-overlay {
+  display: none; position: fixed; inset: 0;
+  background: var(--overlay); z-index: 999;
+  flex-direction: column; align-items: center; justify-content: center; gap: var(--sp2);
+  backdrop-filter: blur(12px);
+}
+.loading-overlay.visible { display: flex; }
+.spinner-ring {
+  width: 52px; height: 52px; border-radius: 50%;
+  border: 3px solid var(--spinner-track);
+  border-top-color: var(--primary);
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-text {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px; letter-spacing: 3px;
+  text-transform: uppercase; color: var(--text2);
+}
+
+/* ─── Responsive ─── */
+@media (max-width: 1024px) {
+  .cards { grid-template-columns: repeat(auto-fill, minmax(155px, 1fr)); }
+}
+@media (max-width: 640px) {
+  .navbar { padding: 12px var(--sp2); gap: var(--sp2); }
+  .nav-search { max-width: none; flex: 1; }
+  .page { padding: var(--sp2); }
+  .match-banner { flex-direction: column; align-items: flex-start; gap: var(--sp1); }
+  .match-banner .match-title { margin-left: 0; }
+  .cards { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: var(--sp2); }
+  .section-head h2 { font-size: 26px; }
+}
+</style>
 </head>
 <body>
 
-    <!-- Loading overlay — appears on search or page change -->
-    <div class="loading-overlay" id="loadingOverlay">
-        <div class="spinner"></div>
-        <div class="loading-text">Finding recommendations...</div>
-    </div>
+<div class="bg-canvas">
+  <div class="bg-orb"></div>
+  <div class="bg-orb"></div>
+</div>
 
-    <!-- Search bar at the top so the user can search again without going back -->
-    <div class="search-bar">
-        <form action="/recommend" method="POST" id="searchForm">
-            <input type="text" name="query"
-                   placeholder="Enter an anime title (e.g., One Peace)"
-                   value="{{ query }}" required>
-            <button type="submit">Go</button>
-        </form>
-    </div>
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="spinner-ring"></div>
+  <div class="loading-text">Finding recommendations...</div>
+</div>
 
-    <!-- Show what title was matched, or an error message if nothing was found -->
-    {% if matched %}
-    <div class="matched-title">
-        <h2>You searched for "{{ query }}" → Matched: {{ matched.title }}</h2>
-        <p>Cluster ID: {{ matched.cluster_id }}</p>
-    </div>
-    {% else %}
-    <div class="matched-title">
-        <h2>Sorry, we couldn't find a match for "{{ query }}"</h2>
-        <p>Try a different spelling or title.</p>
-    </div>
-    {% endif %}
+<!-- Navbar -->
+<nav class="navbar">
+  <a class="logo" href="/">
+    <span class="logo-dot"></span>ANIDEAS
+  </a>
+  <form class="nav-search" action="/recommend" method="POST" id="searchForm">
+    <input type="text" name="query" value="{{ query }}" placeholder="Search another anime…" required>
+    <button type="submit">Go</button>
+  </form>
+  <div class="nav-right">
+    <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+      <span class="theme-icon sun">☀</span>
+      <span class="theme-icon moon">◑</span>
+    </button>
+  </div>
+</nav>
 
-    <div class="recommendations">
-        <h2>Recommendations</h2>
+<div class="page">
 
-        {% if recommendations %}
-        <div class="cards">
-            {% for rec in recommendations %}
-            <a href="/info?title={{ rec.title | urlencode }}" class="card-link">
-                <div class="card">
-                    <img src="{{ rec.image_url }}" alt="{{ rec.title }}">
-                    <div class="title">{{ rec.title }}</div>
+  <!-- Match Banner -->
+  {% if matched %}
+  <div class="match-banner">
+    <span class="match-label">✦ Matched</span>
+    <span class="match-query">You searched: "{{ query }}"</span>
+    <span class="match-title">{{ matched.title }}</span>
+    <span class="cluster-badge">Cluster #{{ matched.cluster_id }}</span>
+  </div>
+  {% else %}
+  <div class="match-banner">
+    <span class="match-label">⚠ No match</span>
+    <span class="match-query">Couldn't find "{{ query }}" — try a different spelling.</span>
+  </div>
+  {% endif %}
 
-                    <!--
-                        Similarity badge — shows how close this recommendation
-                        is to the searched title as a percentage.
-                        Colour changes based on how strong the match is.
-                    -->
-                    {% if rec.similarity >= 80 %}
-                        <div class="similarity-badge high">{{ rec.similarity }}% match</div>
-                    {% elif rec.similarity >= 60 %}
-                        <div class="similarity-badge medium">{{ rec.similarity }}% match</div>
-                    {% else %}
-                        <div class="similarity-badge low">{{ rec.similarity }}% match</div>
-                    {% endif %}
+  <!-- Recommendations -->
+  {% if recommendations %}
+  <div class="section-head">
+    <h2>Recommendations</h2>
+    <span class="count">{{ recommendations | length }} titles</span>
+  </div>
 
-                </div>
-            </a>
-            {% endfor %}
+  <div class="cards">
+    {% for rec in recommendations %}
+    <a href="/info?title={{ rec.title | urlencode }}" class="card-link">
+      <div class="card">
+        <div class="card-img-wrap">
+          <img src="{{ rec.image_url }}" alt="{{ rec.title }}" loading="lazy">
+          <div class="card-gradient"></div>
+          <div class="card-hover-overlay"></div>
+          <div class="card-overlay-info">
+            <div class="card-title">{{ rec.title }}</div>
+            {% if rec.similarity >= 80 %}
+            <span class="badge high">▲ {{ rec.similarity }}%</span>
+            {% elif rec.similarity >= 60 %}
+            <span class="badge medium">◆ {{ rec.similarity }}%</span>
+            {% else %}
+            <span class="badge low">● {{ rec.similarity }}%</span>
+            {% endif %}
+          </div>
         </div>
+      </div>
+    </a>
+    {% endfor %}
+  </div>
 
-        <!-- Pagination controls -->
-        <!-- These submit the search form again with a different page number -->
-        <!-- The query and page are both sent as form fields -->
-        {% if total_pages > 1 %}
-        <div class="pagination">
+  {% if total_pages > 1 %}
+  <div class="pagination">
+    <form action="/recommend" method="POST">
+      <input type="hidden" name="query" value="{{ query }}">
+      <input type="hidden" name="page" value="{{ page - 1 }}">
+      <button type="submit" class="pag-btn" {% if page <= 1 %}disabled{% endif %} onclick="showLoading()">← Prev</button>
+    </form>
+    <span class="page-info">{{ page }} / {{ total_pages }}</span>
+    <form action="/recommend" method="POST">
+      <input type="hidden" name="query" value="{{ query }}">
+      <input type="hidden" name="page" value="{{ page + 1 }}">
+      <button type="submit" class="pag-btn" {% if page >= total_pages %}disabled{% endif %} onclick="showLoading()">Next →</button>
+    </form>
+  </div>
+  {% endif %}
 
-            <!-- Previous page button — disabled if we're already on page 1 -->
-            <form action="/recommend" method="POST" id="prevForm">
-                <input type="hidden" name="query" value="{{ query }}">
-                <input type="hidden" name="page" value="{{ page - 1 }}">
-                <button type="submit" {% if page <= 1 %}disabled{% endif %}
-                        onclick="showLoading()">
-                    ← Previous
-                </button>
-            </form>
+  {% else %}
+  <div class="no-results">
+    <div class="icon">⌕</div>
+    <p>No recommendations found in this cluster.</p>
+  </div>
+  {% endif %}
 
-            <span class="page-info">Page {{ page }} of {{ total_pages }}</span>
+  <div class="back-link">
+    <a href="/">← Back to home</a>
+  </div>
+</div>
 
-            <!-- Next page button — disabled if we're on the last page -->
-            <form action="/recommend" method="POST" id="nextForm">
-                <input type="hidden" name="query" value="{{ query }}">
-                <input type="hidden" name="page" value="{{ page + 1 }}">
-                <button type="submit" {% if page >= total_pages %}disabled{% endif %}
-                        onclick="showLoading()">
-                    Next →
-                </button>
-            </form>
+<script>
+  const root = document.documentElement;
+  const stored = localStorage.getItem('anideas-theme') || 'dark';
+  root.setAttribute('data-theme', stored);
 
-        </div>
-        {% endif %}
+  document.getElementById('themeToggle').addEventListener('click', () => {
+    const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    root.setAttribute('data-theme', next);
+    localStorage.setItem('anideas-theme', next);
+  });
 
-        {% else %}
-        <div class="no-results">
-            <p>No recommendations found in this cluster.</p>
-        </div>
-        {% endif %}
-    </div>
-
-    <div class="back-link">
-        <a href="/">← Back to Home</a>
-    </div>
-
-    <script>
-        // Show the loading overlay whenever a form is submitted
-        function showLoading() {
-            document.getElementById('loadingOverlay').classList.add('visible');
-        }
-
-        // Attach to the main search form at the top
-        document.getElementById('searchForm').addEventListener('submit', showLoading);
-    </script>
-
+  function showLoading() {
+    document.getElementById('loadingOverlay').classList.add('visible');
+  }
+  document.getElementById('searchForm').addEventListener('submit', showLoading);
+</script>
 </body>
 </html>

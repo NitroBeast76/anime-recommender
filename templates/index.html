@@ -1,104 +1,549 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Anime Recommender</title>
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 40px 20px;
-            background: #f5f5f5;
-            text-align: center;
-        }
-        .search-container {
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-        h1 { margin-top: 0; }
-        form {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
-        }
-        input[type="text"] {
-            flex: 1;
-            padding: 12px;
-            font-size: 16px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-        }
-        button {
-            padding: 12px 24px;
-            background: #0066cc;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-        button:hover { background: #0052a3; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Anideas — Find Your Next Anime Obsession</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&family=Space+Mono:wght@400;700&display=swap');
 
-        /* Loading overlay — hidden by default, shown when form is submitted */
-        .loading-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(255, 255, 255, 0.85);
-            z-index: 999;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 16px;
-        }
-        .loading-overlay.visible {
-            display: flex;
-        }
-        .spinner {
-            width: 48px;
-            height: 48px;
-            border: 5px solid #ddd;
-            border-top-color: #0066cc;
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-        }
-        .loading-text {
-            font-size: 16px;
-            color: #444;
-        }
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-    </style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --ease: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --rad-sm: 8px;
+  --rad-md: 14px;
+  --rad-lg: 20px;
+  --sp1: 8px; --sp2: 16px; --sp3: 24px; --sp4: 32px; --sp5: 48px; --sp6: 64px;
+}
+
+[data-theme="light"] {
+  --bg: #F3C677;
+  --bg2: #F0B84E;
+  --bg3: #e8a83a;
+  --primary: #F8403A;
+  --secondary: #FFB347;
+  --text: #2D2B26;
+  --text2: #7A6A4B;
+  --surface: rgba(255,255,255,0.55);
+  --surface2: rgba(255,255,255,0.35);
+  --border: rgba(45,43,38,0.12);
+  --glow: rgba(248,64,58,0.3);
+  --overlay: rgba(243,198,119,0.82);
+  --spinner-track: rgba(45,43,38,0.15);
+}
+
+[data-theme="dark"] {
+  --bg: #1a1530;
+  --bg2: #2A2442;
+  --bg3: #342d56;
+  --primary: #A564EE;
+  --secondary: #7A4EE6;
+  --text: #F0EFF7;
+  --text2: #9A8FC2;
+  --surface: rgba(42,36,66,0.75);
+  --surface2: rgba(52,45,86,0.6);
+  --border: rgba(165,100,238,0.18);
+  --glow: rgba(165,100,238,0.35);
+  --overlay: rgba(26,21,48,0.88);
+  --spinner-track: rgba(240,239,247,0.12);
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+  transition: background 0.4s var(--ease), color 0.4s var(--ease);
+}
+
+/* ─── Animated BG ─── */
+.bg-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.bg-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.45;
+  animation: drift 18s ease-in-out infinite alternate;
+}
+.bg-orb:nth-child(1) {
+  width: 600px; height: 600px;
+  top: -200px; left: -150px;
+  background: var(--primary);
+  animation-delay: 0s;
+}
+.bg-orb:nth-child(2) {
+  width: 500px; height: 500px;
+  bottom: -200px; right: -100px;
+  background: var(--secondary);
+  animation-delay: -6s;
+}
+.bg-orb:nth-child(3) {
+  width: 350px; height: 350px;
+  top: 40%; left: 55%;
+  background: var(--bg3);
+  animation-delay: -12s;
+  opacity: 0.3;
+}
+[data-theme="light"] .bg-orb { opacity: 0.25; }
+
+@keyframes drift {
+  0% { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(40px, 60px) scale(1.08); }
+}
+
+/* Noise texture overlay */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-size: 200px 200px;
+}
+
+/* ─── Navbar ─── */
+.navbar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  padding: var(--sp2) var(--sp4);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--overlay);
+  backdrop-filter: blur(20px) saturate(1.6);
+  -webkit-backdrop-filter: blur(20px) saturate(1.6);
+  border-bottom: 1px solid var(--border);
+  transition: background 0.4s var(--ease);
+}
+
+.logo {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 28px;
+  letter-spacing: 3px;
+  color: var(--primary);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.logo-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--primary);
+  display: inline-block;
+  animation: pulse 2.4s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.5); opacity: 0.6; }
+}
+
+.nav-right { display: flex; align-items: center; gap: var(--sp2); }
+
+.theme-toggle {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 50px;
+  width: 52px; height: 28px;
+  cursor: pointer;
+  position: relative;
+  transition: background 0.3s var(--ease);
+  flex-shrink: 0;
+}
+.theme-toggle::after {
+  content: '';
+  position: absolute;
+  top: 3px; left: 3px;
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: var(--text2);
+  transition: transform 0.3s var(--ease), background 0.3s var(--ease);
+}
+[data-theme="dark"] .theme-toggle::after { transform: translateX(24px); background: var(--primary); }
+
+.theme-icon {
+  position: absolute;
+  font-size: 11px;
+  top: 50%; transform: translateY(-50%);
+  pointer-events: none;
+  line-height: 1;
+}
+.theme-icon.sun { left: 6px; }
+.theme-icon.moon { right: 5px; }
+
+/* ─── Main ─── */
+main {
+  position: relative;
+  z-index: 10;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 120px var(--sp4) var(--sp6);
+}
+
+/* ─── Hero ─── */
+.hero {
+  text-align: center;
+  max-width: 720px;
+  animation: heroIn 0.9s var(--ease) both;
+}
+@keyframes heroIn {
+  from { opacity: 0; transform: translateY(28px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.hero-eyebrow {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--primary);
+  margin-bottom: var(--sp3);
+  opacity: 0;
+  animation: fadeUp 0.6s var(--ease) 0.2s both;
+}
+
+.hero-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(52px, 9vw, 100px);
+  line-height: 0.95;
+  letter-spacing: 2px;
+  color: var(--text);
+  margin-bottom: var(--sp3);
+  opacity: 0;
+  animation: fadeUp 0.7s var(--ease) 0.35s both;
+}
+.hero-title span {
+  color: var(--primary);
+  position: relative;
+  display: inline-block;
+}
+.hero-title span::after {
+  content: '';
+  position: absolute;
+  bottom: 4px; left: 0; right: 0;
+  height: 4px;
+  background: var(--primary);
+  border-radius: 2px;
+  transform: scaleX(0);
+  transform-origin: left;
+  animation: underlineReveal 0.6s var(--ease) 1s both;
+}
+@keyframes underlineReveal {
+  to { transform: scaleX(1); }
+}
+
+.hero-sub {
+  font-size: 17px;
+  color: var(--text2);
+  line-height: 1.6;
+  font-weight: 300;
+  margin-bottom: var(--sp5);
+  opacity: 0;
+  animation: fadeUp 0.7s var(--ease) 0.5s both;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── Search Command Bar ─── */
+.search-wrap {
+  width: 100%;
+  max-width: 580px;
+  margin: 0 auto;
+  opacity: 0;
+  animation: fadeUp 0.7s var(--ease) 0.65s both;
+}
+
+.search-bar {
+  display: flex;
+  align-items: center;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 60px;
+  padding: 6px 6px 6px var(--sp3);
+  gap: var(--sp2);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  transition: border-color 0.25s, box-shadow 0.25s;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.12);
+}
+.search-bar:focus-within {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px var(--glow), 0 8px 40px rgba(0,0,0,0.18);
+}
+
+.search-icon {
+  color: var(--text2);
+  font-size: 18px;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.search-bar input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 16px;
+  color: var(--text);
+  padding: 10px 0;
+}
+.search-bar input::placeholder { color: var(--text2); font-weight: 300; }
+
+.search-btn {
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  border-radius: 50px;
+  padding: 12px 28px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: transform 0.2s, box-shadow 0.2s, filter 0.2s;
+  letter-spacing: 0.3px;
+}
+.search-btn:hover {
+  transform: scale(1.04);
+  box-shadow: 0 4px 24px var(--glow);
+  filter: brightness(1.1);
+}
+.search-btn:active { transform: scale(0.97); }
+
+/* ─── Tags ─── */
+.genre-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  margin-top: var(--sp3);
+  opacity: 0;
+  animation: fadeUp 0.7s var(--ease) 0.8s both;
+}
+.tag {
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  color: var(--text2);
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 50px;
+  padding: 6px 16px;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, border-color 0.2s, transform 0.2s;
+  backdrop-filter: blur(8px);
+}
+.tag:hover {
+  color: var(--text);
+  border-color: var(--primary);
+  background: var(--glow);
+  transform: translateY(-2px);
+}
+
+/* ─── Floating stat pills ─── */
+.stats {
+  display: flex;
+  gap: var(--sp4);
+  justify-content: center;
+  margin-top: var(--sp6);
+  flex-wrap: wrap;
+  opacity: 0;
+  animation: fadeUp 0.7s var(--ease) 1s both;
+}
+.stat {
+  text-align: center;
+}
+.stat-num {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 36px;
+  color: var(--primary);
+  line-height: 1;
+}
+.stat-label {
+  font-size: 12px;
+  color: var(--text2);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-top: 4px;
+}
+
+/* ─── Decorative side element ─── */
+.side-deco {
+  position: fixed;
+  right: -40px;
+  top: 50%;
+  transform: translateY(-50%) rotate(90deg);
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 4px;
+  color: var(--text2);
+  opacity: 0.35;
+  text-transform: uppercase;
+  z-index: 5;
+  writing-mode: vertical-rl;
+  display: none;
+}
+@media (min-width: 1100px) { .side-deco { display: block; right: 24px; } }
+
+/* ─── Loading Overlay ─── */
+.loading-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: var(--overlay);
+  z-index: 999;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp2);
+  backdrop-filter: blur(12px);
+}
+.loading-overlay.visible { display: flex; }
+
+.spinner-ring {
+  width: 56px; height: 56px;
+  border-radius: 50%;
+  border: 3px solid var(--spinner-track);
+  border-top-color: var(--primary);
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.loading-text {
+  font-family: 'Space Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--text2);
+  margin-top: var(--sp1);
+}
+
+/* ─── Responsive ─── */
+@media (max-width: 640px) {
+  .navbar { padding: var(--sp2); }
+  .hero-title { font-size: 52px; }
+  .search-bar { padding: 4px 4px 4px var(--sp2); }
+  .search-btn { padding: 11px 18px; font-size: 14px; }
+  .stats { gap: var(--sp3); }
+  .stat-num { font-size: 28px; }
+}
+</style>
 </head>
 <body>
 
-    <!-- Loading overlay — appears while the server is finding a match -->
-    <div class="loading-overlay" id="loadingOverlay">
-        <div class="spinner"></div>
-        <div class="loading-text">Finding recommendations...</div>
+<div class="bg-canvas">
+  <div class="bg-orb"></div>
+  <div class="bg-orb"></div>
+  <div class="bg-orb"></div>
+</div>
+
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="spinner-ring"></div>
+  <div class="loading-text">Searching the cosmos...</div>
+</div>
+
+<!-- Navbar -->
+<nav class="navbar">
+  <a class="logo" href="/">
+    <span class="logo-dot"></span>
+    ANIDEAS
+  </a>
+  <div class="nav-right">
+    <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+      <span class="theme-icon sun">☀</span>
+      <span class="theme-icon moon">◑</span>
+    </button>
+  </div>
+</nav>
+
+<main>
+  <div class="hero">
+    <p class="hero-eyebrow">✦ AI-Powered Anime Discovery</p>
+    <h1 class="hero-title">
+      Find Your Next<br><span>Anime</span> Obsession
+    </h1>
+    <p class="hero-sub">Type any title — even if you misspell it. We'll find the perfect match<br>and surface anime you'll actually love.</p>
+
+    <div class="search-wrap">
+      <form action="/recommend" method="POST" id="searchForm">
+        <div class="search-bar">
+          <span class="search-icon">⌕</span>
+          <input type="text" name="query" placeholder="e.g., Atack on Titan, One Peace…" required autocomplete="off">
+          <button type="submit" class="search-btn">Discover →</button>
+        </div>
+      </form>
+
+      <div class="genre-tags">
+        <span class="tag" onclick="setQuery('Action')">⚔ Action</span>
+        <span class="tag" onclick="setQuery('Romance')">♡ Romance</span>
+        <span class="tag" onclick="setQuery('Isekai')">✦ Isekai</span>
+        <span class="tag" onclick="setQuery('Horror')">☽ Horror</span>
+        <span class="tag" onclick="setQuery('Slice of Life')">⌂ Slice of Life</span>
+        <span class="tag" onclick="setQuery('Mecha')">⚙ Mecha</span>
+      </div>
     </div>
 
-    <div class="search-container">
-        <h1>Anime Recommender</h1>
-        <p>Enter an anime title (even misspelled!)</p>
-        <form action="/recommend" method="POST" id="searchForm">
-            <input type="text" name="query" placeholder="e.g., One Peace" required>
-            <button type="submit">Go</button>
-        </form>
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-num">18K+</div>
+        <div class="stat-label">Titles</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">97%</div>
+        <div class="stat-label">Match Accuracy</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">∞</div>
+        <div class="stat-label">Recommendations</div>
+      </div>
     </div>
+  </div>
+</main>
 
-    <script>
-        // When the form is submitted, show the loading overlay
-        // so the user knows something is happening while they wait
-        document.getElementById('searchForm').addEventListener('submit', function() {
-            document.getElementById('loadingOverlay').classList.add('visible');
-        });
-    </script>
+<span class="side-deco">Anideas — Anime Discovery Platform</span>
 
+<script>
+  // Theme
+  const root = document.documentElement;
+  const stored = localStorage.getItem('anideas-theme') || 'dark';
+  root.setAttribute('data-theme', stored);
+
+  document.getElementById('themeToggle').addEventListener('click', () => {
+    const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    root.setAttribute('data-theme', next);
+    localStorage.setItem('anideas-theme', next);
+  });
+
+  // Genre tag quick fill
+  function setQuery(q) {
+    document.querySelector('input[name="query"]').value = q;
+    document.querySelector('input[name="query"]').focus();
+  }
+
+  // Loading
+  document.getElementById('searchForm').addEventListener('submit', () => {
+    document.getElementById('loadingOverlay').classList.add('visible');
+  });
+</script>
 </body>
 </html>
