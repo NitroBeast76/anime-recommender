@@ -4,7 +4,7 @@ expertMode = true
 
 [nix]
 channel = "stable-25_05"
-packages = ["c-ares", "cacert", "cargo", "glibcLocales", "grpc", "libffi", "libiconv", "libxcrypt", "openssl", "pkg-config", "rustc", "zlib"]
+packages = ["c-ares", "cacert", "cargo", "glibcLocales", "grpc", "libffi", "libiconv", "libxcrypt", "openssl", "pkg-config", "rustc", "xsimd", "zlib"]
 
 [workflows]
 runButton = "Project"
