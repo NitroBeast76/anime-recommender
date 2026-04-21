@@ -4,7 +4,7 @@ expertMode = true
 
 [nix]
 channel = "stable-25_05"
-packages = ["c-ares", "cacert", "cargo", "glibcLocales", "grpc", "libffi", "libiconv", "libxcrypt", "openssl", "pkg-config", "rustc", "xsimd", "zlib"]
+packages = ["c-ares", "cacert", "cargo", "glibcLocales", "grpc", "libffi", "libiconv", "libxcrypt", "openssl", "pkg-config", "rustc", "xsimd", "zlib", "ollama"]
 
 [workflows]
 runButton = "Project"
@@ -31,7 +31,7 @@ waitForPort = 5000
 outputType = "webview"
 
 [[ports]]
-localPort = 5000
+localPort = 5001
 externalPort = 80
 
 [deployment]
