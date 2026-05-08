@@ -36,37 +36,43 @@
     }
 
     [data-theme="light"] {
-      --bg: #F3C677;
-      --bg2: #F0B84E;
-      --primary: #F8403A;
-      --secondary: #FFB347;
-      --text: #2D2B26;
-      --text2: #7A6A4B;
-      --surface: rgba(255, 255, 255, 0.65);
-      --surface2: rgba(255, 255, 255, 0.45);
-      --border: rgba(45, 43, 38, 0.12);
-      --glow: rgba(248, 64, 58, 0.25);
-      --overlay: rgba(243, 198, 119, 0.9);
-      --pill-bg: rgba(45, 43, 38, 0.08);
-      --pill-text: #2D2B26;
-      --divider: rgba(45, 43, 38, 0.1);
+      --bg: #F0E6C8;
+      --bg2: #E8D9B0;
+      --primary: #C8860A;
+      --primary-bright: #E8A020;
+      --secondary: #8B1A1A;
+      --text: #1A1208;
+      --text2: #5C4A1E;
+      --surface: rgba(245, 237, 214, 0.85);
+      --surface2: rgba(240, 230, 200, 0.68);
+      --border: rgba(26, 18, 8, 0.14);
+      --border-bright: rgba(200, 134, 10, 0.5);
+      --glow: rgba(200, 134, 10, 0.35);
+      --glow-wide: rgba(200, 134, 10, 0.14);
+      --overlay: rgba(240, 230, 200, 0.95);
+      --pill-bg: rgba(200, 134, 10, 0.12);
+      --pill-text: #7A4A00;
+      --divider: rgba(26, 18, 8, 0.12);
     }
 
     [data-theme="dark"] {
-      --bg: #1a1530;
-      --bg2: #2A2442;
-      --primary: #A564EE;
+      --bg: #100d1f;
+      --bg2: #1e1838;
+      --primary: #b06bff;
+      --primary-bright: #c990ff;
       --secondary: #7A4EE6;
-      --text: #F0EFF7;
+      --text: #f2f0fa;
       --text2: #9A8FC2;
-      --surface: rgba(42, 36, 66, 0.78);
-      --surface2: rgba(52, 45, 86, 0.6);
-      --border: rgba(165, 100, 238, 0.18);
-      --glow: rgba(165, 100, 238, 0.3);
-      --overlay: rgba(26, 21, 48, 0.9);
-      --pill-bg: rgba(165, 100, 238, 0.14);
-      --pill-text: #C9ABFF;
-      --divider: rgba(165, 100, 238, 0.12);
+      --surface: rgba(32, 26, 58, 0.82);
+      --surface2: rgba(42, 35, 76, 0.65);
+      --border: rgba(176, 107, 255, 0.2);
+      --border-bright: rgba(176, 107, 255, 0.45);
+      --glow: rgba(176, 107, 255, 0.4);
+      --glow-wide: rgba(176, 107, 255, 0.15);
+      --overlay: rgba(16, 13, 31, 0.94);
+      --pill-bg: rgba(176, 107, 255, 0.14);
+      --pill-text: #d4b0ff;
+      --divider: rgba(176, 107, 255, 0.14);
     }
 
     html {
@@ -118,7 +124,8 @@
     }
 
     [data-theme="light"] .bg-orb {
-      opacity: 0.1 !important;
+      opacity: 0.08 !important;
+      filter: blur(100px) saturate(0.4) !important;
     }
 
     @keyframes drift {
@@ -140,6 +147,89 @@
       opacity: 0.03;
       background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
       background-size: 200px 200px;
+    }
+
+    [data-theme="light"] body::before {
+      opacity: 0.07;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='6' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      background-size: 180px 180px;
+    }
+
+    [data-theme="light"] body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+      background: radial-gradient(ellipse at center, transparent 35%, rgba(26, 18, 8, 0.06) 100%);
+    }
+
+    /* Light mode ink-stamp overrides */
+    [data-theme="light"] .poster-img {
+      box-shadow: 6px 8px 0 rgba(26,18,8,0.18), 0 16px 48px rgba(26,18,8,0.12);
+      border: 1px solid rgba(26,18,8,0.12);
+    }
+
+    [data-theme="light"] .poster-img:hover {
+      box-shadow: 8px 12px 0 rgba(26,18,8,0.22), 0 0 0 2px var(--primary), 0 20px 56px rgba(26,18,8,0.15);
+      transform: scale(1.02) translateY(-5px) translateX(-2px);
+    }
+
+    [data-theme="light"] .btn-primary {
+      box-shadow: 3px 4px 0 rgba(26,18,8,0.2);
+    }
+
+    [data-theme="light"] .btn-primary:hover {
+      box-shadow: 5px 7px 0 rgba(26,18,8,0.25);
+      transform: translateY(-2px) translateX(-1px);
+    }
+
+    [data-theme="light"] .btn-secondary {
+      box-shadow: 2px 3px 0 rgba(26,18,8,0.1);
+      border-color: rgba(26,18,8,0.2);
+    }
+
+    [data-theme="light"] .btn-secondary:hover {
+      border-color: var(--primary);
+      box-shadow: 3px 4px 0 rgba(26,18,8,0.15);
+      transform: translateY(-2px) translateX(-1px);
+    }
+
+    [data-theme="light"] .meta-grid {
+      box-shadow: 3px 4px 0 rgba(26,18,8,0.1), inset 0 1px 0 rgba(255,255,255,0.5);
+      border-color: rgba(26,18,8,0.15);
+    }
+
+    [data-theme="light"] .meta-grid::before {
+      background: linear-gradient(90deg, transparent, var(--primary), transparent);
+    }
+
+    [data-theme="light"] .genre-pill {
+      box-shadow: 1px 2px 0 rgba(26,18,8,0.1);
+      border-color: rgba(26,18,8,0.15);
+    }
+
+    [data-theme="light"] .genre-pill:hover {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+      box-shadow: 2px 3px 0 rgba(26,18,8,0.2);
+    }
+
+    [data-theme="light"] .rating-score {
+      filter: drop-shadow(1px 2px 0 rgba(26,18,8,0.15));
+    }
+
+    [data-theme="light"] .anime-title {
+      text-shadow: 2px 2px 0 rgba(26,18,8,0.08);
+    }
+
+    [data-theme="light"] .watch-option:hover {
+      background: linear-gradient(135deg, var(--primary-bright), var(--primary));
+    }
+
+    [data-theme="light"] .navbar {
+      box-shadow: 0 2px 0 rgba(26,18,8,0.1), 0 4px 24px rgba(26,18,8,0.06);
     }
 
     /* Starfield canvas */
@@ -164,9 +254,10 @@
       align-items: center;
       justify-content: space-between;
       background: var(--overlay);
-      backdrop-filter: blur(20px) saturate(1.6);
-      -webkit-backdrop-filter: blur(20px) saturate(1.6);
+      backdrop-filter: blur(24px) saturate(1.8);
+      -webkit-backdrop-filter: blur(24px) saturate(1.8);
       border-bottom: 1px solid var(--border);
+      box-shadow: 0 1px 0 0 var(--glow-wide), 0 4px 32px rgba(0,0,0,0.18);
       transition: background 0.4s var(--ease);
     }
 
@@ -179,6 +270,11 @@
       display: flex;
       align-items: center;
       gap: 8px;
+      background: linear-gradient(135deg, var(--primary-bright), var(--primary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      filter: drop-shadow(0 0 10px var(--glow));
     }
 
     .logo-dot {
@@ -187,6 +283,8 @@
       border-radius: 50%;
       background: var(--primary);
       animation: pulse 2.4s ease-in-out infinite;
+      -webkit-text-fill-color: initial;
+      box-shadow: 0 0 8px var(--glow);
     }
 
     @keyframes pulse {
@@ -327,13 +425,13 @@
       object-fit: cover;
       border-radius: var(--rad-xl);
       display: block;
-      box-shadow: 0 24px 64px rgba(0, 0, 0, 0.45), 0 0 0 1px var(--border);
+      box-shadow: 0 24px 64px rgba(0, 0, 0, 0.5), 0 0 0 1px var(--border);
       transition: transform 0.4s var(--ease), box-shadow 0.4s;
     }
 
     .poster-img:hover {
-      transform: scale(1.02) translateY(-4px);
-      box-shadow: 0 32px 80px rgba(0, 0, 0, 0.55), 0 0 0 2px var(--primary);
+      transform: scale(1.02) translateY(-6px);
+      box-shadow: 0 36px 90px rgba(0, 0, 0, 0.6), 0 0 0 2px var(--primary), 0 0 40px var(--glow-wide);
     }
 
     .poster-actions {
@@ -347,30 +445,28 @@
 
     .btn-primary {
       display: inline-block;
-      /* changed from 'block' */
       width: auto;
-      /* let the content determine width */
       min-width: 160px;
-      /* optional: ensures it doesn't get too narrow */
       text-align: center;
-      background: var(--primary);
+      background: linear-gradient(135deg, var(--primary-bright), var(--primary), var(--secondary));
+      background-size: 200% 200%;
       color: #fff;
       border: none;
       border-radius: var(--rad-md);
       padding: 13px 28px;
-      /* horizontal padding for breathing room */
       font-family: 'DM Sans', sans-serif;
       font-size: 14px;
       font-weight: 600;
       cursor: pointer;
       transition: transform 0.2s var(--ease), box-shadow 0.2s var(--ease), filter 0.2s var(--ease);
       letter-spacing: 0.3px;
+      box-shadow: 0 6px 24px var(--glow);
     }
 
     .btn-primary:hover {
-      transform: translateY(-2px);
+      transform: translateY(-3px);
       filter: brightness(1.1);
-      box-shadow: 0 8px 24px var(--glow);
+      box-shadow: 0 10px 32px var(--glow), 0 0 40px var(--glow-wide);
     }
 
     .btn-primary:active {
@@ -432,6 +528,7 @@
       letter-spacing: 2px;
       color: var(--text);
       margin-bottom: var(--sp3);
+      text-shadow: 0 2px 40px rgba(0,0,0,0.2);
     }
 
     /* ─── Rating strip ─── */
@@ -445,9 +542,13 @@
 
     .rating-score {
       font-family: 'Bebas Neue', sans-serif;
-      font-size: 40px;
-      color: var(--primary);
+      font-size: 44px;
+      background: linear-gradient(135deg, var(--primary-bright), var(--primary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
       line-height: 1;
+      filter: drop-shadow(0 0 12px var(--glow));
     }
 
     .rating-label {
@@ -482,10 +583,19 @@
       background: var(--surface);
       border-radius: var(--rad-lg);
       border: 1px solid var(--border);
-      backdrop-filter: blur(10px);
+      backdrop-filter: blur(16px);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 4px 24px rgba(0,0,0,0.08);
+      position: relative;
+      overflow: hidden;
     }
-
-    .meta-item {}
+    .meta-grid::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--primary), transparent);
+      opacity: 0.5;
+    }
 
     .meta-key {
       font-family: 'Space Mono', monospace;
@@ -701,7 +811,7 @@
     }
 
     .watch-option:hover {
-      background: var(--primary);
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
       color: #ffffff;
       padding-left: 24px;
     }
@@ -722,7 +832,7 @@
 
     #watchBtn:hover {
       transform: translateY(-2px);
-      box-shadow: 0 8px 24px var(--glow);
+      box-shadow: 0 10px 32px var(--glow), 0 0 40px var(--glow-wide);
       filter: brightness(1.1);
     }
 
@@ -742,7 +852,7 @@
   <!-- Blurred poster backdrop -->
   <div class="poster-backdrop"
     style="position:fixed;top:0;left:0;right:0;height:420px;z-index:2;overflow:hidden;border-radius:0 0 40px 40px;pointer-events:none;">
-    <img src="{{ anime.image_url }}" alt="" aria-hidden="true"
+    <img id="backdrop-img" src="{{ anime.image_url }}" alt="" aria-hidden="true"
       style="width:100%;height:100%;object-fit:cover;filter:blur(60px) saturate(1.3) brightness(0.25);transform:scale(1.15);">
     <div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(26,21,48,0.3) 0%,var(--bg) 100%);">
     </div>
@@ -768,7 +878,7 @@
       <!-- Poster column -->
       <div class="poster-col">
         <div class="poster-wrap">
-          <img class="poster-img" src="{{ anime.image_url }}" alt="{{ anime.title }}">
+          <img id="poster-img" class="poster-img" src="{{ anime.image_url }}" alt="{{ anime.title }}">
           <div class="poster-actions">
             <div class="watch-dropdown">
               <button class="btn-primary" id="watchBtn"> 👁 Available Now On All Apps</button>
@@ -791,7 +901,13 @@
 
         <!-- Rating strip -->
         <div class="rating-strip">
-          <span class="rating-score">{{ anime.rating }}</span>
+          <span class="rating-score">
+            {% if anime.rating and anime.rating != 'Unknown' %}
+            {{ anime.rating }}
+            {% else %}
+            Unrated
+            {% endif %}
+          </span>
           <div class="rating-label">
             <div class="stars">
               <span class="star" style="color:var(--primary)">★</span>
@@ -817,7 +933,13 @@
         <div class="meta-grid">
           <div class="meta-item">
             <div class="meta-key">Release Date</div>
-            <div class="meta-val">{{ anime.year }}</div>
+            <div class="meta-val">
+              {% if anime.year == -1 or anime.year_is_imputed %}
+              Unknown
+              {% else %}
+              {{ anime.year }}
+              {% endif %}
+            </div>
           </div>
           <div class="meta-item">
             <div class="meta-key">Episodes</div>
@@ -837,7 +959,13 @@
 
         <!-- Synopsis -->
         <div class="synopsis-label">Synopsis</div>
+        {% if anime.synopsis_stub %}
+        <p class="synopsis-text" style="font-style:italic; color:var(--text2);">
+          Full synopsis not available.
+        </p>
+        {% else %}
         <p class="synopsis-text">{{ anime.synopsis }}</p>
+        {% endif %}
 
         <div class="back-wrap">
           <a href="javascript:history.back()" class="back-link">← Back to results</a>
@@ -989,19 +1117,21 @@
           if (p.y < 0) p.y = 1;
           if (p.y > 1) p.y = 0;
 
-          const pulse = Math.sin(now * 0.6 + p.phase) * 0.2 + 0.8;
+          const pulse = Math.sin(now * 0.5 + p.phase) * 0.15 + 0.85;
           const size = p.baseSize * pulse;
+          const alpha = 0.06 + pulse * 0.08;
 
-          // Visible warm gold, semi‑transparent
-          ctx.fillStyle = `hsla(42, 80%, 75%, ${0.4 + pulse * 0.15})`;  // 0.4–0.55
+          ctx.fillStyle = `rgba(26, 18, 8, ${alpha})`;
           ctx.beginPath();
           ctx.arc(p.x * width, p.y * height, size, 0, Math.PI * 2);
           ctx.fill();
 
-          ctx.shadowColor = `hsla(42, 70%, 70%, 0.4)`;
-          ctx.shadowBlur = size * 6;
-          ctx.fill();
-          ctx.shadowBlur = 0;
+          if (p.baseSize > 2.8) {
+            ctx.fillStyle = `rgba(200, 134, 10, ${alpha * 1.4})`;
+            ctx.beginPath();
+            ctx.arc(p.x * width, p.y * height, size * 0.5, 0, Math.PI * 2);
+            ctx.fill();
+          }
         });
       }
 
@@ -1040,6 +1170,40 @@
       window.addEventListener('beforeunload', () => {
         if (animationFrame) cancelAnimationFrame(animationFrame);
         observer.disconnect();
+      });
+    })();
+  </script>
+
+
+  // Fallback for placeholder images
+  <script>
+    (function () {
+      const PLACEHOLDER = "/static/no_image.png";
+      const LIGHT_IMG = "/static/images/light.png";
+      const DARK_IMG = "/static/images/dark.png";
+
+      const poster = document.getElementById("poster-img");
+      const backdrop = document.getElementById("backdrop-img");
+      const originalUrl = poster ? poster.getAttribute("src") : "";
+
+      // Only run if the page uses the placeholder image
+      if (!originalUrl || originalUrl !== PLACEHOLDER) return;
+
+      function updatePlaceholder() {
+        const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+        const newSrc = isDark ? DARK_IMG : LIGHT_IMG;
+        if (poster) poster.src = newSrc;
+        if (backdrop) backdrop.src = newSrc;
+      }
+
+      // Set the correct image on load
+      updatePlaceholder();
+
+      // Watch for theme changes
+      const observer = new MutationObserver(() => updatePlaceholder());
+      observer.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ["data-theme"]
       });
     })();
   </script>

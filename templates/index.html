@@ -1,693 +1,1132 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Anideas — Find Your Next Anime Obsession</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Anideas — Find Your Next Anime Obsession</title>
   <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
   <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='favicon-32x32.png') }}">
   <link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='favicon-16x16.png') }}">
   <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='apple-touch-icon.png') }}">
   <link rel="manifest" href="{{ url_for('static', filename='site.webmanifest') }}">
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&family=Space+Mono:wght@400;700&display=swap');
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&family=Space+Mono:wght@400;700&display=swap');
 
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-:root {
-  --ease: cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  --rad-sm: 8px;
-  --rad-md: 14px;
-  --rad-lg: 20px;
-  --sp1: 8px; --sp2: 16px; --sp3: 24px; --sp4: 32px; --sp5: 48px; --sp6: 64px;
-}
+    :root {
+      --ease: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      --rad-sm: 8px;
+      --rad-md: 14px;
+      --rad-lg: 20px;
+      --sp1: 8px;
+      --sp2: 16px;
+      --sp3: 24px;
+      --sp4: 32px;
+      --sp5: 48px;
+      --sp6: 64px;
+    }
 
-[data-theme="light"] {
-  --bg: #F3C677;
-  --bg2: #F0B84E;
-  --bg3: #e8a83a;
-  --primary: #F8403A;
-  --secondary: #FFB347;
-  --text: #2D2B26;
-  --text2: #7A6A4B;
-  --surface: rgba(255,255,255,0.55);
-  --surface2: rgba(255,255,255,0.35);
-  --border: rgba(45,43,38,0.12);
-  --glow: rgba(248,64,58,0.3);
-  --overlay: rgba(243,198,119,0.82);
-  --spinner-track: rgba(45,43,38,0.15);
-}
+    [data-theme="light"] {
+      --bg: #F0E6C8;
+      --bg2: #E8D9B0;
+      --bg3: #DDC98A;
+      --primary: #C8860A;
+      --primary-bright: #E8A020;
+      --secondary: #8B1A1A;
+      --text: #1A1208;
+      --text2: #5C4A1E;
+      --surface: rgba(245, 237, 214, 0.82);
+      --surface2: rgba(240, 230, 200, 0.65);
+      --border: rgba(26, 18, 8, 0.14);
+      --border-bright: rgba(200, 134, 10, 0.5);
+      --glow: rgba(200, 134, 10, 0.35);
+      --glow-wide: rgba(200, 134, 10, 0.14);
+      --overlay: rgba(240, 230, 200, 0.94);
+      --spinner-track: rgba(26, 18, 8, 0.15);
+    }
 
-[data-theme="dark"] {
-  --bg: #1a1530;
-  --bg2: #2A2442;
-  --bg3: #342d56;
-  --primary: #A564EE;
-  --secondary: #7A4EE6;
-  --text: #F0EFF7;
-  --text2: #9A8FC2;
-  --surface: rgba(42,36,66,0.75);
-  --surface2: rgba(52,45,86,0.6);
-  --border: rgba(165,100,238,0.18);
-  --glow: rgba(165,100,238,0.35);
-  --overlay: rgba(26,21,48,0.88);
-  --spinner-track: rgba(240,239,247,0.12);
-}
+    [data-theme="dark"] {
+      --bg: #100d1f;
+      --bg2: #1e1838;
+      --bg3: #2a2250;
+      --primary: #b06bff;
+      --primary-bright: #c990ff;
+      --secondary: #7A4EE6;
+      --text: #f2f0fa;
+      --text2: #9A8FC2;
+      --surface: rgba(32, 26, 58, 0.82);
+      --surface2: rgba(42, 35, 76, 0.65);
+      --border: rgba(176, 107, 255, 0.2);
+      --border-bright: rgba(176, 107, 255, 0.45);
+      --glow: rgba(176, 107, 255, 0.4);
+      --glow-wide: rgba(176, 107, 255, 0.18);
+      --overlay: rgba(16, 13, 31, 0.92);
+      --spinner-track: rgba(240, 239, 247, 0.12);
+    }
 
-html { scroll-behavior: smooth; }
+    html {
+      scroll-behavior: smooth;
+    }
 
-body {
-  font-family: 'DM Sans', sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  min-height: 100vh;
-  overflow-x: hidden;
-  transition: background 0.4s var(--ease), color 0.4s var(--ease);
-}
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+      transition: background 0.4s var(--ease), color 0.4s var(--ease);
+    }
 
-/* ─── Animated BG ─── */
-.bg-canvas {
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  overflow: hidden;
-  pointer-events: none;
-}
-.bg-orb {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(80px);
-  opacity: 0.45;
-  animation: drift 18s ease-in-out infinite alternate;
-}
-.bg-orb:nth-child(1) {
-  width: 600px; height: 600px;
-  top: -200px; left: -150px;
-  background: var(--primary);
-  animation-delay: 0s;
-}
-.bg-orb:nth-child(2) {
-  width: 500px; height: 500px;
-  bottom: -200px; right: -100px;
-  background: var(--secondary);
-  animation-delay: -6s;
-}
-.bg-orb:nth-child(3) {
-  width: 350px; height: 350px;
-  top: 40%; left: 55%;
-  background: var(--bg3);
-  animation-delay: -12s;
-  opacity: 0.3;
-}
-[data-theme="light"] .bg-orb { opacity: 0.25; }
+    /* Animated BG */
+    .bg-canvas {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      overflow: hidden;
+      pointer-events: none;
+    }
 
-@keyframes drift {
-  0% { transform: translate(0, 0) scale(1); }
-  100% { transform: translate(40px, 60px) scale(1.08); }
-}
+    .bg-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.45;
+      animation: drift 18s ease-in-out infinite alternate;
+    }
 
-/* Noise texture overlay */
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  z-index: 1;
-  pointer-events: none;
-  opacity: 0.035;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
-  background-size: 200px 200px;
-}
+    .bg-orb:nth-child(1) {
+      width: 700px;
+      height: 700px;
+      top: -280px;
+      left: -180px;
+      background: radial-gradient(circle, var(--primary) 0%, var(--secondary) 70%);
+      animation-delay: 0s;
+    }
 
-  /* Starfield canvas */
-  .starfield {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    z-index: 2;
-    display: block;
-  }
+    .bg-orb:nth-child(2) {
+      width: 580px;
+      height: 580px;
+      bottom: -250px;
+      right: -130px;
+      background: radial-gradient(circle, var(--secondary) 0%, var(--primary) 70%);
+      animation-delay: -6s;
+    }
 
-/* ─── Navbar ─── */
-.navbar {
-  position: fixed;
-  top: 0; left: 0; right: 0;
-  z-index: 100;
-  padding: var(--sp2) var(--sp4);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: var(--overlay);
-  backdrop-filter: blur(20px) saturate(1.6);
-  -webkit-backdrop-filter: blur(20px) saturate(1.6);
-  border-bottom: 1px solid var(--border);
-  transition: background 0.4s var(--ease);
-}
+    .bg-orb:nth-child(3) {
+      width: 400px;
+      height: 400px;
+      top: 38%;
+      left: 52%;
+      background: radial-gradient(circle, #4a30a0, transparent);
+      animation-delay: -12s;
+      opacity: 0.35;
+    }
 
-.logo {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 28px;
-  letter-spacing: 3px;
-  color: var(--primary);
-  text-decoration: none;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.logo-dot {
-  width: 8px; height: 8px;
-  border-radius: 50%;
-  background: var(--primary);
-  display: inline-block;
-  animation: pulse 2.4s ease-in-out infinite;
-}
-@keyframes pulse {
-  0%, 100% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.5); opacity: 0.6; }
-}
+    [data-theme="light"] .bg-orb {
+      opacity: 0.12 !important;
+      filter: blur(100px) saturate(0.6) !important;
+    }
 
-.nav-right { display: flex; align-items: center; gap: var(--sp2); }
+    @keyframes drift {
+      0% {
+        transform: translate(0, 0) scale(1);
+      }
 
-.theme-toggle {
-  background: var(--surface2);
-  border: 1px solid var(--border);
-  border-radius: 50px;
-  width: 52px; height: 28px;
-  cursor: pointer;
-  position: relative;
-  transition: background 0.3s var(--ease);
-  flex-shrink: 0;
-}
-.theme-toggle::after {
-  content: '';
-  position: absolute;
-  top: 3px; left: 3px;
-  width: 22px; height: 22px;
-  border-radius: 50%;
-  background: var(--text2);
-  transition: transform 0.3s var(--ease), background 0.3s var(--ease);
-}
-[data-theme="dark"] .theme-toggle::after { transform: translateX(24px); background: var(--primary); }
+      100% {
+        transform: translate(40px, 60px) scale(1.08);
+      }
+    }
 
-.theme-icon {
-  position: absolute;
-  font-size: 11px;
-  top: 50%; transform: translateY(-50%);
-  pointer-events: none;
-  line-height: 1;
-}
-.theme-icon.sun { left: 6px; }
-.theme-icon.moon { right: 5px; }
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+      opacity: 0.035;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+      background-size: 200px 200px;
+    }
 
-/* ─── Main ─── */
-main {
-  position: relative;
-  z-index: 10;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 120px var(--sp4) var(--sp6);
-}
+    /* Paper grain — stronger in light mode */
+    [data-theme="light"] body::before {
+      opacity: 0.07;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='6' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+      background-size: 180px 180px;
+    }
 
-/* ─── Hero ─── */
-.hero {
-  text-align: center;
-  max-width: 720px;
-  animation: heroIn 0.9s var(--ease) both;
-}
-@keyframes heroIn {
-  from { opacity: 0; transform: translateY(28px); }
-  to { opacity: 1; transform: translateY(0); }
-}
+    /* Manga speed-line vignette — light mode only */
+    [data-theme="light"] body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+      background: radial-gradient(ellipse at center, transparent 40%, rgba(26, 18, 8, 0.06) 100%);
+    }
 
-.hero-eyebrow {
-  font-family: 'Space Mono', monospace;
-  font-size: 11px;
-  letter-spacing: 4px;
-  text-transform: uppercase;
-  color: var(--primary);
-  margin-bottom: var(--sp3);
-  opacity: 0;
-  animation: fadeUp 0.6s var(--ease) 0.2s both;
-}
+    .starfield {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 2;
+      display: block;
+    }
 
-.hero-title {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: clamp(52px, 9vw, 100px);
-  line-height: 0.95;
-  letter-spacing: 2px;
-  color: var(--text);
-  margin-bottom: var(--sp3);
-  opacity: 0;
-  animation: fadeUp 0.7s var(--ease) 0.35s both;
-}
-.hero-title span {
-  color: var(--primary);
-  position: relative;
-  display: inline-block;
-}
-.hero-title span::after {
-  content: '';
-  position: absolute;
-  bottom: 4px; left: 0; right: 0;
-  height: 4px;
-  background: var(--primary);
-  border-radius: 2px;
-  transform: scaleX(0);
-  transform-origin: left;
-  animation: underlineReveal 0.6s var(--ease) 1s both;
-}
-@keyframes underlineReveal {
-  to { transform: scaleX(1); }
-}
+    /* Navbar */
+    .navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      padding: var(--sp2) var(--sp4);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--overlay);
+      backdrop-filter: blur(24px) saturate(1.8);
+      -webkit-backdrop-filter: blur(24px) saturate(1.8);
+      border-bottom: 1px solid var(--border);
+      box-shadow: 0 1px 0 0 var(--glow-wide), 0 4px 32px rgba(0,0,0,0.18);
+      transition: background 0.4s var(--ease);
+    }
 
-.hero-sub {
-  font-size: 17px;
-  color: var(--text2);
-  line-height: 1.6;
-  font-weight: 300;
-  margin-bottom: var(--sp5);
-  opacity: 0;
-  animation: fadeUp 0.7s var(--ease) 0.5s both;
-}
+    .logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 28px;
+      letter-spacing: 3px;
+      color: var(--primary);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: linear-gradient(135deg, var(--primary-bright), var(--primary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      filter: drop-shadow(0 0 12px var(--glow));
+      transition: filter 0.3s;
+    }
 
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(16px); }
-  to { opacity: 1; transform: translateY(0); }
-}
+    .logo:hover {
+      filter: drop-shadow(0 0 20px var(--glow));
+    }
 
-/* ─── Search Command Bar ─── */
-.search-wrap {
-  width: 100%;
-  max-width: 580px;
-  margin: 0 auto;
-  opacity: 0;
-  animation: fadeUp 0.7s var(--ease) 0.65s both;
-}
+    .logo-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--primary);
+      display: inline-block;
+      animation: pulse 2.4s ease-in-out infinite;
+      flex-shrink: 0;
+      -webkit-text-fill-color: initial;
+      background-clip: initial;
+      -webkit-background-clip: initial;
+      box-shadow: 0 0 10px var(--glow), 0 0 4px var(--primary);
+    }
 
-.search-bar {
-  display: flex;
-  align-items: center;
-  background: var(--surface);
-  border: 1.5px solid var(--border);
-  border-radius: 60px;
-  padding: 6px 6px 6px var(--sp3);
-  gap: var(--sp2);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  transition: border-color 0.25s, box-shadow 0.25s;
-  box-shadow: 0 8px 40px rgba(0,0,0,0.12);
-}
-.search-bar:focus-within {
-  border-color: var(--primary);
-  box-shadow: 0 0 0 4px var(--glow), 0 8px 40px rgba(0,0,0,0.18);
-}
+    @keyframes pulse {
 
-.search-icon {
-  color: var(--text2);
-  font-size: 18px;
-  flex-shrink: 0;
-  line-height: 1;
-}
+      0%,
+      100% {
+        transform: scale(1);
+        opacity: 1;
+      }
 
-.search-bar input {
-  flex: 1;
-  background: transparent;
-  border: none;
-  outline: none;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 16px;
-  color: var(--text);
-  padding: 10px 0;
-}
-.search-bar input::placeholder { color: var(--text2); font-weight: 300; }
+      50% {
+        transform: scale(1.5);
+        opacity: 0.6;
+      }
+    }
 
-.search-btn {
-  background: var(--primary);
-  color: #fff;
-  border: none;
-  border-radius: 50px;
-  padding: 12px 28px;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 15px;
-  font-weight: 600;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: transform 0.2s, box-shadow 0.2s, filter 0.2s;
-  letter-spacing: 0.3px;
-}
-.search-btn:hover {
-  transform: scale(1.04);
-  box-shadow: 0 4px 24px var(--glow);
-  filter: brightness(1.1);
-}
-.search-btn:active { transform: scale(0.97); }
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: var(--sp2);
+    }
 
-/* ─── Tags ─── */
-.genre-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  justify-content: center;
-  margin-top: var(--sp3);
-  opacity: 0;
-  animation: fadeUp 0.7s var(--ease) 0.8s both;
-}
-.tag {
-  font-size: 12px;
-  font-weight: 500;
-  letter-spacing: 0.5px;
-  color: var(--text2);
-  background: var(--surface2);
-  border: 1px solid var(--border);
-  border-radius: 50px;
-  padding: 6px 16px;
-  cursor: pointer;
-  transition: background 0.2s, color 0.2s, border-color 0.2s, transform 0.2s;
-  backdrop-filter: blur(8px);
-}
-.tag:hover {
-  color: var(--text);
-  border-color: var(--primary);
-  background: var(--glow);
-  transform: translateY(-2px);
-}
+    .theme-toggle {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 50px;
+      width: 52px;
+      height: 28px;
+      cursor: pointer;
+      position: relative;
+      transition: background 0.3s var(--ease);
+      flex-shrink: 0;
+    }
 
-/* ─── Floating stat pills ─── */
-.stats {
-  display: flex;
-  gap: var(--sp4);
-  justify-content: center;
-  margin-top: var(--sp6);
-  flex-wrap: wrap;
-  opacity: 0;
-  animation: fadeUp 0.7s var(--ease) 1s both;
-}
-.stat {
-  text-align: center;
-}
-.stat-num {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 36px;
-  color: var(--primary);
-  line-height: 1;
-}
-.stat-label {
-  font-size: 12px;
-  color: var(--text2);
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  margin-top: 4px;
-}
+    .theme-toggle::after {
+      content: '';
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--text2);
+      transition: transform 0.3s var(--ease), background 0.3s var(--ease);
+    }
 
-/* ─── Decorative side element ─── */
-.side-deco {
-  position: fixed;
-  right: -40px;
-  top: 50%;
-  transform: translateY(-50%) rotate(90deg);
-  font-family: 'Space Mono', monospace;
-  font-size: 10px;
-  letter-spacing: 4px;
-  color: var(--text2);
-  opacity: 0.35;
-  text-transform: uppercase;
-  z-index: 5;
-  writing-mode: vertical-rl;
-  display: none;
-}
-@media (min-width: 1100px) { .side-deco { display: block; right: 24px; } }
+    [data-theme="dark"] .theme-toggle::after {
+      transform: translateX(24px);
+      background: var(--primary);
+    }
 
-/* ─── Loading Overlay ─── */
-.loading-overlay {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: var(--overlay);
-  z-index: 999;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: var(--sp2);
-  backdrop-filter: blur(12px);
-}
-.loading-overlay.visible { display: flex; }
+    .theme-icon {
+      position: absolute;
+      font-size: 11px;
+      top: 50%;
+      transform: translateY(-50%);
+      pointer-events: none;
+      line-height: 1;
+    }
 
-.spinner-ring {
-  width: 56px; height: 56px;
-  border-radius: 50%;
-  border: 3px solid var(--spinner-track);
-  border-top-color: var(--primary);
-  animation: spin 0.8s linear infinite;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
+    .theme-icon.sun {
+      left: 6px;
+    }
 
-.loading-text {
-  font-family: 'Space Mono', monospace;
-  font-size: 12px;
-  letter-spacing: 3px;
-  text-transform: uppercase;
-  color: var(--text2);
-  margin-top: var(--sp1);
-}
+    .theme-icon.moon {
+      right: 5px;
+    }
 
-/* ─── Responsive ─── */
-@media (max-width: 640px) {
-  .navbar { padding: var(--sp2); }
-  .hero-title { font-size: 52px; }
-  .search-bar { padding: 4px 4px 4px var(--sp2); }
-  .search-btn { padding: 11px 18px; font-size: 14px; }
-  .stats { gap: var(--sp3); }
-  .stat-num { font-size: 28px; }
-}
-</style>
+    /* Main */
+    main {
+      position: relative;
+      z-index: 10;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 120px var(--sp4) var(--sp6);
+    }
+
+    /* Hero */
+    .hero {
+      text-align: center;
+      max-width: 720px;
+      animation: heroIn 0.9s var(--ease) both;
+    }
+
+    @keyframes heroIn {
+      from {
+        opacity: 0;
+        transform: translateY(28px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .hero-eyebrow {
+      font-family: 'Space Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: var(--primary);
+      margin-bottom: var(--sp3);
+      opacity: 0;
+      animation: fadeUp 0.6s var(--ease) 0.2s both;
+      text-shadow: 0 0 16px var(--glow);
+    }
+
+    .hero-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(72px, 12vw, 148px);
+      line-height: 0.95;
+      letter-spacing: 2px;
+      color: var(--text);
+      margin-bottom: var(--sp3);
+      opacity: 0;
+      animation: fadeUp 0.7s var(--ease) 0.35s both;
+    }
+
+    .hero-title span {
+      color: var(--primary);
+      background: linear-gradient(135deg, var(--primary-bright) 0%, var(--primary) 50%, var(--secondary) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      position: relative;
+      display: inline-block;
+      filter: drop-shadow(0 2px 20px var(--glow));
+    }
+
+    .hero-title span::after {
+      content: '';
+      position: absolute;
+      bottom: 2px;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--secondary), var(--primary-bright), var(--primary));
+      border-radius: 2px;
+      transform: scaleX(0);
+      transform-origin: left;
+      animation: underlineReveal 0.7s var(--ease) 1s both;
+      box-shadow: 0 0 12px var(--glow);
+    }
+
+    @keyframes underlineReveal {
+      to {
+        transform: scaleX(1);
+      }
+    }
+
+    .hero-sub {
+      font-size: 17px;
+      color: var(--text2);
+      line-height: 1.6;
+      font-weight: 300;
+      margin-bottom: var(--sp5);
+      opacity: 0;
+      animation: fadeUp 0.7s var(--ease) 0.5s both;
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(16px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Search Command Bar */
+    .search-wrap {
+      width: 100%;
+      max-width: 580px;
+      margin: 0 auto;
+      opacity: 0;
+      animation: fadeUp 0.7s var(--ease) 0.65s both;
+    }
+
+    .search-bar {
+      display: flex;
+      align-items: center;
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 60px;
+      padding: 6px 6px 6px var(--sp3);
+      gap: var(--sp2);
+      backdrop-filter: blur(20px) saturate(1.8);
+      -webkit-backdrop-filter: blur(20px) saturate(1.8);
+      transition: border-color 0.25s, box-shadow 0.25s;
+      box-shadow: 0 8px 48px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255,255,255,0.06);
+    }
+
+    .search-bar:focus-within {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px var(--glow-wide), 0 0 24px var(--glow), 0 8px 48px rgba(0, 0, 0, 0.25);
+    }
+
+    .search-icon {
+      color: var(--text2);
+      font-size: 18px;
+      flex-shrink: 0;
+      line-height: 1;
+    }
+
+    /* ── Ghost that sits perfectly behind the input ── */
+    .autocomplete-wrap {
+      position: relative;
+      flex: 1;
+      min-width: 0;
+      height: 44px;               /* match the button height for consistency */
+    }
+    .autocomplete-input {
+      width: 100%;
+      height: 100%;
+      background: transparent;
+      border: none;
+      outline: none;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 16px;
+      line-height: 24px;
+      color: var(--text);
+      padding: 10px 0;
+      caret-color: var(--primary);
+      position: relative;
+      z-index: 2;
+    }
+    .autocomplete-input::placeholder {
+      color: var(--text2);
+      font-weight: 300;
+    }
+
+    /* Ghost layer – absolutely fills the wrapper */
+    .autocomplete-ghost {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      pointer-events: none;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 16px;
+      line-height: 24px;
+      padding: 10px 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      z-index: 1;
+      display: flex;
+      align-items: center;        /* vertically center the text */
+    }
+    .autocomplete-ghost .typed {
+      color: transparent;
+    }
+    .autocomplete-ghost .suggestion {
+      color: var(--text2);
+      opacity: 0.65;
+      transition: opacity 0.2s;
+    }
+
+    /* Search button */
+    .search-btn {
+      background: linear-gradient(135deg, var(--primary-bright), var(--primary), var(--secondary));
+      background-size: 200% 200%;
+      color: #fff;
+      border: none;
+      border-radius: 50px;
+      padding: 12px 28px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: transform 0.2s, box-shadow 0.2s, filter 0.2s, background-position 0.4s;
+      letter-spacing: 0.3px;
+      flex-shrink: 0;
+      box-shadow: 0 4px 16px var(--glow);
+    }
+
+    .search-btn:hover {
+      transform: scale(1.04);
+      box-shadow: 0 6px 28px var(--glow), 0 0 40px var(--glow-wide);
+      filter: brightness(1.12);
+      background-position: right center;
+    }
+
+    .search-btn:active {
+      transform: scale(0.97);
+    }
+
+    /* Genre Tags */
+    .genre-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      margin-top: var(--sp3);
+      opacity: 0;
+      animation: fadeUp 0.7s var(--ease) 0.8s both;
+    }
+
+    .tag {
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+      color: var(--text2);
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 50px;
+      padding: 6px 16px;
+      cursor: pointer;
+      transition: background 0.22s, color 0.22s, border-color 0.22s, transform 0.22s, box-shadow 0.22s;
+      backdrop-filter: blur(10px);
+    }
+
+    .tag:hover {
+      color: var(--text);
+      border-color: var(--primary);
+      background: var(--glow-wide);
+      transform: translateY(-3px);
+      box-shadow: 0 4px 16px var(--glow-wide), 0 0 0 1px var(--border-bright);
+    }
+
+    /* Stats */
+    .stats {
+      display: flex;
+      gap: var(--sp4);
+      justify-content: center;
+      margin-top: var(--sp6);
+      flex-wrap: wrap;
+      opacity: 0;
+      animation: fadeUp 0.7s var(--ease) 1s both;
+    }
+
+    .stat {
+      text-align: center;
+    }
+
+    .stat-num {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 40px;
+      background: linear-gradient(135deg, var(--primary-bright), var(--primary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1;
+      filter: drop-shadow(0 0 10px var(--glow));
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: var(--text2);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-top: 4px;
+    }
+
+    /* Side decoration */
+    .side-deco {
+      position: fixed;
+      right: -40px;
+      top: 50%;
+      transform: translateY(-50%) rotate(90deg);
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 4px;
+      color: var(--text2);
+      opacity: 0.35;
+      text-transform: uppercase;
+      z-index: 5;
+      writing-mode: vertical-rl;
+      display: none;
+    }
+
+    @media (min-width: 1100px) {
+      .side-deco {
+        display: block;
+        right: 24px;
+      }
+    }
+
+    /* Loading Overlay */
+    .loading-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: var(--overlay);
+      z-index: 999;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: var(--sp2);
+      backdrop-filter: blur(12px);
+    }
+
+    .loading-overlay.visible {
+      display: flex;
+    }
+
+    .spinner-ring {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      border: 3px solid var(--spinner-track);
+      border-top-color: var(--primary);
+      border-right-color: var(--primary-bright);
+      animation: spin 0.75s linear infinite;
+      box-shadow: 0 0 20px var(--glow);
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .loading-text {
+      font-family: 'Space Mono', monospace;
+      font-size: 12px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--text2);
+      margin-top: var(--sp1);
+    }
+
+    /* ── Light mode overrides ── */
+    [data-theme="light"] .hero-title span {
+      background: linear-gradient(135deg, var(--primary-bright) 0%, var(--primary) 60%, var(--secondary) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      filter: drop-shadow(0 2px 0px rgba(26,18,8,0.25));
+    }
+
+    [data-theme="light"] .hero-eyebrow {
+      text-shadow: none;
+      letter-spacing: 5px;
+    }
+
+    [data-theme="light"] .search-bar {
+      box-shadow: 0 4px 0 rgba(26,18,8,0.12), 0 8px 32px rgba(26,18,8,0.08);
+      border-color: rgba(26,18,8,0.2);
+    }
+
+    [data-theme="light"] .search-bar:focus-within {
+      border-color: var(--primary);
+      box-shadow: 0 4px 0 var(--primary), 0 8px 32px rgba(200,134,10,0.15);
+    }
+
+    [data-theme="light"] .tag {
+      border-color: rgba(26,18,8,0.18);
+      color: var(--text2);
+      box-shadow: 1px 2px 0 rgba(26,18,8,0.08);
+    }
+
+    [data-theme="light"] .tag:hover {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+      box-shadow: 2px 4px 0 rgba(26,18,8,0.2);
+      transform: translateY(-3px) translateX(-1px);
+    }
+
+    [data-theme="light"] .stat-num {
+      background: linear-gradient(135deg, var(--primary-bright), var(--primary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      filter: drop-shadow(1px 2px 0 rgba(26,18,8,0.15));
+    }
+
+    [data-theme="light"] .logo {
+      background: linear-gradient(135deg, var(--primary-bright), var(--primary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      filter: drop-shadow(1px 1px 0 rgba(26,18,8,0.2));
+    }
+
+    [data-theme="light"] .search-btn {
+      background: linear-gradient(135deg, var(--primary-bright), var(--primary));
+      box-shadow: 3px 4px 0 rgba(26,18,8,0.2);
+    }
+
+    [data-theme="light"] .search-btn:hover {
+      box-shadow: 4px 6px 0 rgba(26,18,8,0.25), 0 0 20px var(--glow);
+      transform: scale(1.03) translateY(-1px);
+    }
+
+    [data-theme="light"] .navbar {
+      box-shadow: 0 2px 0 rgba(26,18,8,0.1), 0 4px 24px rgba(26,18,8,0.06);
+    }
+
+    [data-theme="light"] .hero-sub {
+      color: var(--text2);
+    }
+      .navbar {
+        padding: var(--sp2);
+      }
+
+      .hero-title {
+        font-size: 68px;
+      }
+
+      .search-bar {
+        padding: 4px 4px 4px var(--sp2);
+      }
+
+      .search-btn {
+        padding: 11px 18px;
+        font-size: 14px;
+      }
+
+      .stats {
+        gap: var(--sp3);
+      }
+
+      .stat-num {
+        font-size: 28px;
+      }
+    }
+  </style>
 </head>
+
 <body>
-<canvas id="starfield-canvas" class="starfield"></canvas>
-<div class="bg-canvas">
-  <div class="bg-orb"></div>
-  <div class="bg-orb"></div>
-  <div class="bg-orb"></div>
-</div>
-
-<div class="loading-overlay" id="loadingOverlay">
-  <div class="spinner-ring"></div>
-  <div class="loading-text">Searching the cosmos...</div>
-</div>
-
-<!-- Navbar -->
-<nav class="navbar">
-  <a class="logo" href="/">
-    <span class="logo-dot"></span>
-    ANIDEAS
-  </a>
-  <div class="nav-right">
-    <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
-      <span class="theme-icon sun">☀</span>
-      <span class="theme-icon moon">◑</span>
-    </button>
+  <canvas id="starfield-canvas" class="starfield"></canvas>
+  <div class="bg-canvas">
+    <div class="bg-orb"></div>
+    <div class="bg-orb"></div>
+    <div class="bg-orb"></div>
   </div>
-</nav>
 
-<main>
-  <div class="hero">
-    <p class="hero-eyebrow">✦ AI-Powered Anime Discovery</p>
-    <h1 class="hero-title">
-      Find Your Next<br><span>Anime</span> Obsession
-    </h1>
-    <p class="hero-sub">Type any title — even if you misspell it. We'll find the perfect match<br>and surface anime you'll actually love.</p>
+  <div class="loading-overlay" id="loadingOverlay">
+    <div class="spinner-ring"></div>
+    <div class="loading-text">Searching the cosmos...</div>
+  </div>
 
-    <div class="search-wrap">
-      <form action="/recommend" method="POST" id="searchForm">
-        <div class="search-bar">
-          <span class="search-icon">⌕</span>
-          <input type="text" name="query" placeholder="e.g., Atack on Titan, One Peace…" required autocomplete="off">
-          <button type="submit" class="search-btn">Discover →</button>
+  <!-- Navbar -->
+  <nav class="navbar">
+    <a class="logo" href="/">
+      <span class="logo-dot"></span>
+      ANIDEAS
+    </a>
+    <div class="nav-right">
+      <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+        <span class="theme-icon sun">☀</span>
+        <span class="theme-icon moon">◑</span>
+      </button>
+    </div>
+  </nav>
+
+  <main>
+    <div class="hero">
+      <p class="hero-eyebrow">✦ AI-Powered Anime Discovery</p>
+      <h1 class="hero-title">
+        Find Your Next<br><span>Anime</span> Obsession
+      </h1>
+      <p class="hero-sub">Type any title — even if you misspell it. We'll find the perfect match<br>and surface anime
+        you'll actually love.</p>
+
+      <div class="search-wrap">
+        <form action="/recommend" method="POST" id="searchForm">
+          <div class="search-bar" id="searchBarEl">
+            <span class="search-icon">⌕</span>
+
+            <!-- Autocomplete wrapper with ghost text only -->
+            <div class="autocomplete-wrap" id="autocompleteWrap">
+              <input type="text" name="query" id="queryInput" placeholder="e.g., Attack on Titan, One Piece…"
+                autocomplete="off" class="autocomplete-input" required>
+              <!-- Inline ghost text (Tab / Arrow keys to complete) -->
+              <div class="autocomplete-ghost" id="autocompleteGhost" aria-hidden="true">
+                <span class="typed" id="ghostTyped"></span><span class="suggestion" id="ghostSuggestion"></span>
+              </div>
+            </div>
+
+            <button type="submit" class="search-btn">Discover →</button>
+          </div>
+        </form>
+
+        <div class="genre-tags">
+          <span class="tag" onclick="setQuery('Action')">⚔ Action</span>
+          <span class="tag" onclick="setQuery('Romance')">♡ Romance</span>
+          <span class="tag" onclick="setQuery('Isekai')">✦ Isekai</span>
+          <span class="tag" onclick="setQuery('Horror')">☽ Horror</span>
+          <span class="tag" onclick="setQuery('Slice of Life')">⌂ Slice of Life</span>
+          <span class="tag" onclick="setQuery('Mecha')">⚙ Mecha</span>
         </div>
-      </form>
+      </div>
 
-      <div class="genre-tags">
-        <span class="tag" onclick="setQuery('Action')">⚔ Action</span>
-        <span class="tag" onclick="setQuery('Romance')">♡ Romance</span>
-        <span class="tag" onclick="setQuery('Isekai')">✦ Isekai</span>
-        <span class="tag" onclick="setQuery('Horror')">☽ Horror</span>
-        <span class="tag" onclick="setQuery('Slice of Life')">⌂ Slice of Life</span>
-        <span class="tag" onclick="setQuery('Mecha')">⚙ Mecha</span>
+      <div class="stats">
+        <div class="stat">
+          <div class="stat-num">18K+</div>
+          <div class="stat-label">Titles</div>
+        </div>
+        <div class="stat">
+          <div class="stat-num">97%</div>
+          <div class="stat-label">Match Accuracy</div>
+        </div>
+        <div class="stat">
+          <div class="stat-num">∞</div>
+          <div class="stat-label">Recommendations</div>
+        </div>
       </div>
     </div>
+  </main>
 
-    <div class="stats">
-      <div class="stat">
-        <div class="stat-num">18K+</div>
-        <div class="stat-label">Titles</div>
-      </div>
-      <div class="stat">
-        <div class="stat-num">97%</div>
-        <div class="stat-label">Match Accuracy</div>
-      </div>
-      <div class="stat">
-        <div class="stat-num">∞</div>
-        <div class="stat-label">Recommendations</div>
-      </div>
-    </div>
-  </div>
-</main>
+  <span class="side-deco">Anideas — Anime Discovery Platform</span>
 
-<span class="side-deco">Anideas — Anime Discovery Platform</span>
-
-<script>
-  // Theme
-  const root = document.documentElement;
-  const stored = localStorage.getItem('anideas-theme') || 'dark';
-  root.setAttribute('data-theme', stored);
-
-  document.getElementById('themeToggle').addEventListener('click', () => {
-    const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-    root.setAttribute('data-theme', next);
-    localStorage.setItem('anideas-theme', next);
-  });
-
-  // Genre tag quick fill
-  function setQuery(q) {
-    document.querySelector('input[name="query"]').value = q;
-    document.querySelector('input[name="query"]').focus();
-  }
-
-  // Loading
-  document.getElementById('searchForm').addEventListener('submit', () => {
-    document.getElementById('loadingOverlay').classList.add('visible');
-  });
-</script>
   <script>
-  (function() {
-    const canvas = document.getElementById('starfield-canvas');
-    const ctx = canvas.getContext('2d');
+    // ─── Theme ───────────────────────────────────────────────
+    const root = document.documentElement;
+    const stored = localStorage.getItem('anideas-theme') || 'dark';
+    root.setAttribute('data-theme', stored);
 
-    const DARK_STAR_COUNT = 70;
-    const LIGHT_DUST_COUNT = 100;       
+    document.getElementById('themeToggle').addEventListener('click', () => {
+      const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      root.setAttribute('data-theme', next);
+      localStorage.setItem('anideas-theme', next);
+    });
 
-    let particles = [];
-    let width, height;
-    let animationFrame = null;
-    let isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    // ─── Genre tag quick fill ────────────────────────────────
+    function setQuery(q) {
+      input.value = q;
+      input.focus();
+      clearGhostAndSuggestions();
+    }
 
-    function initParticles() {
-      particles = [];
-      const count = isDark ? DARK_STAR_COUNT : LIGHT_DUST_COUNT;
+    // ─── Loading overlay ─────────────────────────────────────
+    document.getElementById('searchForm').addEventListener('submit', () => {
+      document.getElementById('loadingOverlay').classList.add('visible');
+    });
 
-      for (let i = 0; i < count; i++) {
-        particles.push({
-          x: Math.random(),
-          y: Math.random(),
-          baseSize: isDark 
-            ? Math.random() * 1.8 + 0.4
-            : Math.random() * 2.5 + 1.5,      // 1.5–4.0px
-          speed: 0.002 + Math.random() * 0.006,
-          phase: Math.random() * Math.PI * 2,
-          driftX: (Math.random() - 0.5) * 0.00025,
-          driftY: (Math.random() - 0.5) * 0.00025
+    // ─── Autocomplete (ghost text only, no dropdown) ─────────
+    const input = document.getElementById('queryInput');
+    const ghostTyped = document.getElementById('ghostTyped');
+    const ghostSugg = document.getElementById('ghostSuggestion');
+
+    let suggestions = [];   // fetched list of titles
+    let activeIndex = -1;   // current selected suggestion (-1 = none, 0 = first, etc.)
+    let debounceTimer = null;
+    let lastQuery = '';
+
+    // Clear ghost and reset internal state
+    function clearGhostAndSuggestions() {
+      ghostTyped.textContent = '';
+      ghostSugg.textContent = '';
+      suggestions = [];
+      activeIndex = -1;
+    }
+
+    // Update the ghost text based on the currently active suggestion
+    function updateGhostFromActive(query) {
+      if (activeIndex >= 0 && activeIndex < suggestions.length) {
+        const selected = suggestions[activeIndex];
+        if (selected.toLowerCase().startsWith(query.toLowerCase())) {
+          ghostTyped.textContent = query;
+          ghostSugg.textContent = selected.substring(query.length);
+        } else {
+          // safety: fallback to no ghost
+          ghostTyped.textContent = '';
+          ghostSugg.textContent = '';
+        }
+      } else {
+        // No active suggestion: try top match if it starts with query
+        if (suggestions.length > 0 && suggestions[0].toLowerCase().startsWith(query.toLowerCase())) {
+          ghostTyped.textContent = query;
+          ghostSugg.textContent = suggestions[0].substring(query.length);
+        } else {
+          ghostTyped.textContent = '';
+          ghostSugg.textContent = '';
+        }
+      }
+    }
+
+    // Fetch suggestions from backend
+    async function fetchSuggestions(query) {
+      if (query.length < 2) {
+        clearGhostAndSuggestions();
+        return;
+      }
+      if (query === lastQuery) return;
+      lastQuery = query;
+      try {
+        const resp = await fetch(`/autocomplete?q=${encodeURIComponent(query)}`);
+        if (!resp.ok) throw new Error('bad response');
+        const data = await resp.json();
+        // Only update if the query is still current
+        if (query !== input.value.trim()) return;
+        suggestions = Array.isArray(data) ? data.slice(0, 8) : [];
+        activeIndex = (suggestions.length > 0 && suggestions[0].toLowerCase().startsWith(query.toLowerCase())) ? 0 : -1;
+        updateGhostFromActive(query);
+      } catch {
+        clearGhostAndSuggestions();
+      }
+    }
+
+    // Accept the currently active suggestion (or top suggestion if none active)
+    function acceptActiveSuggestion() {
+      if (suggestions.length === 0) return false;
+      let titleToAccept = null;
+      if (activeIndex >= 0 && activeIndex < suggestions.length) {
+        titleToAccept = suggestions[activeIndex];
+      } else if (suggestions[0].toLowerCase().startsWith(input.value.trim().toLowerCase())) {
+        titleToAccept = suggestions[0];
+      }
+      if (titleToAccept) {
+        input.value = titleToAccept;
+        clearGhostAndSuggestions();
+        return true;
+      }
+      return false;
+    }
+
+    // Cycle active suggestion up/down
+    function changeActiveIndex(delta) {
+      if (suggestions.length === 0) return;
+      let newIndex = activeIndex + delta;
+      if (newIndex < -1) newIndex = -1;
+      if (newIndex >= suggestions.length) newIndex = suggestions.length - 1;
+      activeIndex = newIndex;
+      updateGhostFromActive(input.value.trim());
+    }
+
+    // Event listeners ─────────────────────────────────────────
+    input.addEventListener('input', () => {
+      const val = input.value;
+      if (!val.trim()) {
+        clearGhostAndSuggestions();
+        return;
+      }
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => fetchSuggestions(val.trim()), 140);
+    });
+
+    input.addEventListener('keydown', (e) => {
+      const query = input.value.trim();
+
+      if (e.key === 'Tab') {
+        // Tab accepts ghost text (if any)
+        e.preventDefault();
+        acceptActiveSuggestion();
+        return;
+      }
+
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        if (suggestions.length > 0) {
+          changeActiveIndex(+1);
+        }
+        return;
+      }
+
+      if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        if (suggestions.length > 0) {
+          changeActiveIndex(-1);
+        }
+        return;
+      }
+
+      if (e.key === 'Enter' && suggestions.length > 0 && activeIndex >= 0) {
+        // If we have an active suggestion, accept it before submitting
+        e.preventDefault();
+        acceptActiveSuggestion();
+        // Submit the form after a tiny delay so the input value updates
+        setTimeout(() => {
+          document.getElementById('searchForm').requestSubmit();
+        }, 10);
+        return;
+      }
+
+      if (e.key === 'Escape') {
+        clearGhostAndSuggestions();
+        return;
+      }
+    });
+
+    // Optional: clear ghost when input loses focus
+    input.addEventListener('blur', () => {
+      setTimeout(() => {
+        if (!input.matches(':focus')) clearGhostAndSuggestions();
+      }, 180);
+    });
+  </script>
+
+  <!-- Starfield animation (unchanged) -->
+  <script>
+    (function () {
+      const canvas = document.getElementById('starfield-canvas');
+      const ctx = canvas.getContext('2d');
+
+      const DARK_STAR_COUNT = 70;
+      const LIGHT_DUST_COUNT = 100;
+
+      let particles = [];
+      let width, height;
+      let animationFrame = null;
+      let isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+
+      function initParticles() {
+        particles = [];
+        const count = isDark ? DARK_STAR_COUNT : LIGHT_DUST_COUNT;
+        for (let i = 0; i < count; i++) {
+          particles.push({
+            x: Math.random(), y: Math.random(),
+            baseSize: isDark ? Math.random() * 1.8 + 0.4 : Math.random() * 2.5 + 1.5,
+            speed: 0.002 + Math.random() * 0.006,
+            phase: Math.random() * Math.PI * 2,
+            driftX: (Math.random() - 0.5) * 0.00025,
+            driftY: (Math.random() - 0.5) * 0.00025
+          });
+        }
+      }
+
+      function resize() {
+        width = window.innerWidth;
+        height = window.innerHeight;
+        canvas.width = width;
+        canvas.height = height;
+      }
+
+      function drawDarkMode(now) {
+        ctx.clearRect(0, 0, width, height);
+        particles.forEach(p => {
+          const twinkle = Math.sin(now * p.speed * 10 + p.phase) * 0.25 + 0.75;
+          const alpha = Math.max(0.2, twinkle * 0.9) * (0.5 + Math.random() * 0.3);
+          const size = p.baseSize * (0.7 + twinkle * 0.5);
+          ctx.fillStyle = `rgba(255, 240, 200, ${alpha})`;
+          ctx.beginPath();
+          ctx.arc(p.x * width, p.y * height, size, 0, Math.PI * 2);
+          ctx.fill();
+          if (size > 1.2) {
+            ctx.shadowColor = 'rgba(200, 180, 255, 0.5)';
+            ctx.shadowBlur = size * 3;
+            ctx.fill();
+            ctx.shadowBlur = 0;
+          }
         });
       }
-    }
 
-    function resize() {
-      width = window.innerWidth;
-      height = window.innerHeight;
-      canvas.width = width;
-      canvas.height = height;
-    }
-
-    function drawDarkMode(now) {
-      ctx.clearRect(0, 0, width, height);
-
-      particles.forEach(p => {
-        const twinkle = Math.sin(now * p.speed * 10 + p.phase) * 0.25 + 0.75;
-        const alpha = Math.max(0.2, twinkle * 0.9) * (0.5 + Math.random() * 0.3);
-        const size = p.baseSize * (0.7 + twinkle * 0.5);
-
-        ctx.fillStyle = `rgba(255, 240, 200, ${alpha})`;
-        ctx.beginPath();
-        ctx.arc(p.x * width, p.y * height, size, 0, Math.PI * 2);
-        ctx.fill();
-
-        if (size > 1.2) {
-          ctx.shadowColor = 'rgba(200, 180, 255, 0.5)';
-          ctx.shadowBlur = size * 3;
+      function drawLightMode(now) {
+        ctx.clearRect(0, 0, width, height);
+        particles.forEach(p => {
+          p.x += p.driftX; p.y += p.driftY;
+          if (p.x < 0) p.x = 1; if (p.x > 1) p.x = 0;
+          if (p.y < 0) p.y = 1; if (p.y > 1) p.y = 0;
+          const pulse = Math.sin(now * 0.5 + p.phase) * 0.15 + 0.85;
+          const size = p.baseSize * pulse;
+          // Ink dust — dark warm particles at low opacity
+          const alpha = 0.06 + pulse * 0.08;
+          ctx.fillStyle = `rgba(26, 18, 8, ${alpha})`;
+          ctx.beginPath();
+          ctx.arc(p.x * width, p.y * height, size, 0, Math.PI * 2);
           ctx.fill();
-          ctx.shadowBlur = 0;
-        }
-      });
-    }
-
-    function drawLightMode(now) {
-      ctx.clearRect(0, 0, width, height);
-
-      particles.forEach(p => {
-        p.x += p.driftX;
-        p.y += p.driftY;
-
-        if (p.x < 0) p.x = 1;
-        if (p.x > 1) p.x = 0;
-        if (p.y < 0) p.y = 1;
-        if (p.y > 1) p.y = 0;
-
-        const pulse = Math.sin(now * 0.6 + p.phase) * 0.2 + 0.8;
-        const size = p.baseSize * pulse;
-
-        // Visible warm gold, semi‑transparent
-        ctx.fillStyle = `hsla(42, 80%, 75%, ${0.4 + pulse * 0.15})`;  // 0.4–0.55
-        ctx.beginPath();
-        ctx.arc(p.x * width, p.y * height, size, 0, Math.PI * 2);
-        ctx.fill();
-
-        ctx.shadowColor = `hsla(42, 70%, 70%, 0.4)`;
-        ctx.shadowBlur = size * 6;
-        ctx.fill();
-        ctx.shadowBlur = 0;
-      });
-    }
-
-    function draw() {
-      const now = Date.now() / 1000;
-
-      if (isDark) {
-        drawDarkMode(now);
-      } else {
-        drawLightMode(now);
+          // Occasional gold fleck
+          if (p.baseSize > 2.8) {
+            ctx.fillStyle = `rgba(200, 134, 10, ${alpha * 1.4})`;
+            ctx.beginPath();
+            ctx.arc(p.x * width, p.y * height, size * 0.5, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        });
       }
 
-      animationFrame = requestAnimationFrame(draw);
-    }
-
-    function handleThemeChange() {
-      const newIsDark = document.documentElement.getAttribute('data-theme') === 'dark';
-      if (newIsDark !== isDark) {
-        isDark = newIsDark;
-        initParticles();
+      function draw() {
+        const now = Date.now() / 1000;
+        isDark ? drawDarkMode(now) : drawLightMode(now);
+        animationFrame = requestAnimationFrame(draw);
       }
-    }
 
-    initParticles();
-    resize();
-    draw();
+      function handleThemeChange() {
+        const newIsDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        if (newIsDark !== isDark) {isDark = newIsDark; initParticles();}
+      }
 
-    window.addEventListener('resize', () => {
-      resize();
-      initParticles();
-    });
-
-    const observer = new MutationObserver(handleThemeChange);
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
-
-    window.addEventListener('beforeunload', () => {
-      if (animationFrame) cancelAnimationFrame(animationFrame);
-      observer.disconnect();
-    });
-  })();
+      initParticles(); resize(); draw();
+      window.addEventListener('resize', () => {resize(); initParticles();});
+      const observer = new MutationObserver(handleThemeChange);
+      observer.observe(document.documentElement, {attributes: true, attributeFilter: ['data-theme']});
+      window.addEventListener('beforeunload', () => {
+        if (animationFrame) cancelAnimationFrame(animationFrame);
+        observer.disconnect();
+      });
+    })();
   </script>
 </body>
+
 </html>
